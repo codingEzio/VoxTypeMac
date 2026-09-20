@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 2,
+  "status": "managed",
+  "toolchains": [
+    {
+      "name": "swift",
+      "version": "6.4",
+      "versionFile": ".swift-version"
+    },
+    {
+      "name": "xcode",
+      "version": "27.0",
+      "versionFile": ".xcode-version"
+    }
+  ],
+  "dependencies": [
+    {
+      "manifest": "Package.swift"
+    },
+    {
+      "manifest": "config/qwen-requirements.in",
+      "lockfile": "config/qwen-requirements.lock"
+    }
+  ],
+  "systemDependencies": [],
+  "tests": {
+    "command": [
+      "bash",
+      "verify-source.sh"
+    ],
+    "unit": {
+      "evidence": [
+        "Tests/VoxTypeTests/VoxTypeTests.swift"
+      ]
+    },
+    "edge": {
+      "evidence": [
+        "Tests/VoxTypeTests/VoxTypeTests.swift"
+      ]
+    },
+    "interfaceSafety": {
+      "mode": "code-contract",
+      "evidence": [
+        "verify-source.sh"
+      ],
+      "capabilities": [
+        "content-resilience",
+        "layout-containment",
+        "input-modes",
+        "accessibility-states",
+        "style-architecture"
+      ]
+    }
+  }
+}

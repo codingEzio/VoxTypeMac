@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "projectId": "client-voxtype",
+  "sources": [
+    {
+      "id": "macos-install-root",
+      "description": "Per-user Applications directory for an optional VoxTypeMac installation",
+      "kind": "directory",
+      "access": "read-write",
+      "root": "home",
+      "path": "Applications",
+      "required": true,
+      "sensitive": true,
+      "overrideEnv": ""
+    },
+    {
+      "id": "portable-state-root",
+      "description": "Per-user VoxTypeMac data directory",
+      "kind": "directory",
+      "access": "read-write",
+      "root": "application-support",
+      "path": "VoxTypeMac",
+      "required": true,
+      "sensitive": true,
+      "overrideEnv": ""
+    }
+  ]
+}

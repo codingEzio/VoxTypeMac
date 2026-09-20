@@ -1,0 +1,48 @@
+@startuml Architectural-Overview
+!pragma layout smetana
+title VoxTypeMac - macOS 27 local dictation runtime map
+
+top to bottom direction
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 20
+skinparam ranksep 48
+skinparam defaultTextAlignment center
+
+component "1. Control plane\nVoxTypeApp / AppDelegate\nGlobalHotkeyMonitor · AppModel · PermissionsManager\nSources/VoxType/ · quit waits for stop" as control
+component "2. Audio capture\nAudioCapture.swift\nAVAudioEngine tap · 256-frame PCM\nraw .caf + waveform samples" as capture
+component "3. Apple speech\nSpeechPreparationCache.swift\nNativeSpeechEngine.swift\nSpeechAnalyzer + DictationTranscriber\nselected en-US / zh-CN locale\nlive/final text" as speech
+component "4. Final text policy\nTranscriptRefinement.swift\nRefinementService.swift\nQwen3-ASR · MLX Metal GPU\n90 s bound · SenseVoice fallback\nChinese mixed speech allowed\nEnglish mode rejects CJK refinement" as text
+component "5. Verified delivery\nOutputDispatcher.swift\nClipboardSnapshot.swift\nAX target · paste confirmation · clipboard fallback" as delivery
+component "6. Presentation\nHUDController.swift · canJoinAllApplications\nDisplayLinkedWaveform.swift · CADisplayLink\nhigh-refresh smooth waveform · Reduced Motion\nmenu popover stays open for record/stop/copy\nrestores latest saved transcript" as presentation
+
+storage "Archive boundary\nSessionStore actor · SettingsStore · SettingsFile\nconfig · recordings · text · metadata · models\ncontained Application Support paths" as archive
+rectangle "Apple SpeechAnalyzer assets" as apple
+rectangle "Pinned public model artifacts\nQwen / MLX community / SenseVoice" as artifacts
+rectangle "macOS TCC + original focused target app\nMicrophone · Speech Recognition · Input Monitoring · Accessibility" as platform
+
+control -down-> capture : start / stop
+capture -down-> speech : PCM buffers
+speech -down-> text : live / final text
+text -down-> delivery : selected transcript
+capture -right-> presentation : meter samples
+
+capture -right-> archive : raw audio
+text -right-> archive : final text + metadata
+speech -left-> apple : prepare assets
+text -left-> artifacts : setup downloads only
+delivery -right-> platform : permission / paste
+
+note right of speech
+  Stop drains the capture and speech queues before delivery.
+  The converter is flushed and input is finalized through end-of-input.
+end note
+
+note left of text
+  If refinement is empty, failed, truncated, short, language-flipped,
+  or worse, AppModel keeps Apple's transcript. Finalization failure
+  keeps live text when available; raw audio remains on disk.
+end note
+
+@enduml

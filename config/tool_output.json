@@ -1,0 +1,8 @@
+{
+  "appBundle": "runtime/build/VoxTypeMac.app",
+  "clangModuleCache": "runtime/cache/clang-modules",
+  "coverageReport": "runtime/temp/swiftpm-coverage/out/Products/Debug/codecov/VoxType.json",
+  "coverageScratch": "runtime/temp/swiftpm-coverage",
+  "releaseRoot": "runtime/release",
+  "swiftScratch": "runtime/temp/swiftpm"
+}

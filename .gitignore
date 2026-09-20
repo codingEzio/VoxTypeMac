@@ -1,0 +1,17 @@
+.build/
+dist/
+.DS_Store
+*.xcuserstate
+.swiftpm/
+.codex/
+runtime/
+Local/
+.env
+.env.*
+*.caf
+*.m4a
+*.p12
+*.pem
+*.wav
+recordings/
+models/

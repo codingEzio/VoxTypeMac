@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 3,
+  "id": "client-voxtype",
+  "name": "VoxTypeMac",
+  "description": "Dictate text locally on macOS.",
+  "kind": "native",
+  "catalog": {
+    "lifecycle": "on-demand",
+    "desired": "installed",
+    "open": {
+      "type": "macos-bundle",
+      "value": "app.voxtypemac.VoxTypeMac"
+    },
+    "dependsOn": []
+  },
+  "contracts": {
+    "quality": "quality.json",
+    "configuration": "external-data.json"
+  },
+  "implementation": {
+    "quality": "quality.json",
+    "externalData": { "manifest": "external-data.json" },
+    "assets": {
+      "icon": "Resources/AppIcon.svg",
+      "roots": [
+        "Resources"
+      ]
+    },
+    "tests": {
+      "command": [
+        "bash",
+        "verify-source.sh"
+      ]
+    }
+  },
+  "presentation": {
+    "token": "PV",
+    "icon": "Resources/AppIcon.svg",
+    "lane": "native",
+    "accent": "rust",
+    "order": 220
+  }
+}
