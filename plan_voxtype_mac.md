@@ -27,7 +27,7 @@ Status: locally complete on 2026-09-20.
 - Release app build and strict ad-hoc signature verification: passed.
 - Clean, no-remote clone source verification and release build: passed.
 - Release ZIP inventory and checksum verification: passed.
-- Commits: `cccc4d1` and `2e0ed69`.
+- Changes are recorded as focused local commits on `main`.
 
 Microphone, TCC, global shortcut, text insertion, launch-at-login, and interactive
 menu/HUD behavior remain installed-app acceptance. This task did not install or
