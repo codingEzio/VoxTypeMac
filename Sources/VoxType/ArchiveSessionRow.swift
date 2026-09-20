@@ -11,7 +11,12 @@ struct SessionRow: View {
         .frame(width: 20)
 
       VStack(alignment: .leading, spacing: 3) {
-        Text(session.startedAt.formatted(date: .abbreviated, time: .shortened))
+        Text(
+          session.startedAt.formatted(
+            Date.FormatStyle(date: .abbreviated, time: .shortened)
+              .locale(model.settings.uiLanguage.foundationLocale)
+          )
+        )
           .fontWeight(.medium)
         Text(summary)
           .font(.caption)
@@ -21,16 +26,16 @@ struct SessionRow: View {
 
       Spacer()
 
-      Button(model.settings.text("Open", "打开")) {
+      Button(model.settings.text(.recordingsOpen)) {
         model.openTranscript(session)
       }
 
       Menu {
-        Button(model.settings.text("Re-transcribe", "重新识别"), systemImage: "arrow.clockwise") {
+        Button(model.settings.text(.recordingsRetranscribe), systemImage: "arrow.clockwise") {
           Task { await model.retranscribe(session) }
         }
         .disabled(model.phase.isBusy)
-        Button(model.settings.text("Show in Finder", "在访达中显示"), systemImage: "folder") {
+        Button(model.settings.text(.recordingsShowInFinder), systemImage: "folder") {
           model.reveal(session)
         }
       } label: {
@@ -38,7 +43,7 @@ struct SessionRow: View {
       }
       .menuStyle(.borderlessButton)
       .fixedSize()
-      .help(model.settings.text("More actions", "更多操作"))
+      .help(model.settings.text(.recordingsMoreActions))
     }
     .controlSize(.regular)
     .padding(.vertical, 5)
@@ -52,7 +57,7 @@ struct SessionRow: View {
   private var summary: String {
     [
       durationLabel(session.durationSeconds), session.localeIdentifier, session.targetApplication,
-      session.status,
+      model.settings.sessionStatus(session.status),
     ]
     .compactMap { $0 }
     .joined(separator: " · ")

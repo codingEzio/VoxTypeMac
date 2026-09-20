@@ -359,7 +359,7 @@ private struct RecordingHUDView: View {
                 }
                 .buttonStyle(.plain)
                 .disabled(model.phase != .recording)
-                .accessibilityLabel("Stop recording")
+                .accessibilityLabel(model.settings.text(.hudStopRecording))
             }
             .frame(height: 48)
         }
@@ -377,13 +377,13 @@ private struct RecordingHUDView: View {
         case .recording:
             model.elapsedLabel
         case .preparing:
-            model.settings.text("Preparing", "准备中")
+            model.settings.text(.hudPreparing)
         case .finalizing:
-            model.settings.text("Finishing", "完成中")
+            model.settings.text(.hudFinishing)
         case .delivering:
-            model.settings.text("Sending", "发送中")
+            model.settings.text(.hudSending)
         case .failed:
-            model.settings.text("Failed", "失败")
+            model.settings.text(.hudFailed)
         case .idle:
             model.elapsedLabel
         }
@@ -458,13 +458,13 @@ private struct RecordingHUDView: View {
         let language = model.settings.dictationLanguage
         if model.refinement.state == .ready {
             return model.settings.text(
-                "Live \(language.shortTitle(simplifiedChinese: false)) draft · refined after stop",
-                "实时\(language.shortTitle(simplifiedChinese: true))草稿 · 停止后优化"
+                .hudLiveRefined,
+                model.settings.text(language.shortTitleKey)
             )
         }
         return model.settings.text(
-            "Live \(language.shortTitle(simplifiedChinese: false)) draft · words lock as they settle",
-            "实时\(language.shortTitle(simplifiedChinese: true))草稿 · 说完的词会锁定"
+            .hudLiveSettling,
+            model.settings.text(language.shortTitleKey)
         )
     }
 }

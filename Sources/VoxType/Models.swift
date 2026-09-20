@@ -31,16 +31,16 @@ public enum DictationShortcut: String, CaseIterable, Identifiable, Sendable {
     }
   }
 
-  var settingsTitle: String {
+  var localizationKey: LocalizationKey {
     switch self {
-    case .optionPeriod: "⌥ Period"
-    case .optionComma: "⌥ Comma"
-    case .optionSlash: "⌥ Slash"
-    case .optionSemicolon: "⌥ Semicolon"
-    case .controlPeriod: "⌃ Period"
-    case .controlSlash: "⌃ Slash"
-    case .rightOption: "Right Option"
-    case .rightCommand: "Right Command"
+    case .optionPeriod: .shortcutOptionPeriod
+    case .optionComma: .shortcutOptionComma
+    case .optionSlash: .shortcutOptionSlash
+    case .optionSemicolon: .shortcutOptionSemicolon
+    case .controlPeriod: .shortcutControlPeriod
+    case .controlSlash: .shortcutControlSlash
+    case .rightOption: .shortcutRightOption
+    case .rightCommand: .shortcutRightCommand
     }
   }
 
@@ -79,10 +79,29 @@ public enum DictationShortcut: String, CaseIterable, Identifiable, Sendable {
 
 public enum UILanguage: String, CaseIterable, Identifiable, Sendable {
   case english = "en"
+  case traditionalChinese = "zh-Hant"
   case simplifiedChinese = "zh-Hans"
+  case japanese = "ja"
+  case korean = "ko"
+  case spanish = "es"
+  case russian = "ru"
+  case ukrainian = "uk"
 
   public var id: String { rawValue }
-  public var title: String { self == .english ? "English" : "简体中文" }
+  public var title: String {
+    switch self {
+    case .english: "English"
+    case .traditionalChinese: "繁體中文"
+    case .simplifiedChinese: "简体中文"
+    case .japanese: "日本語"
+    case .korean: "한국어"
+    case .spanish: "Español"
+    case .russian: "Русский"
+    case .ukrainian: "Українська"
+    }
+  }
+
+  var foundationLocale: Locale { Locale(identifier: rawValue) }
 }
 
 public enum DictationLanguage: String, CaseIterable, Identifiable, Sendable {
@@ -95,30 +114,24 @@ public enum DictationLanguage: String, CaseIterable, Identifiable, Sendable {
     Locale(identifier: rawValue)
   }
 
-  func title(simplifiedChinese: Bool) -> String {
+  var titleKey: LocalizationKey {
     switch self {
-    case .englishUS:
-      simplifiedChinese ? "英语（美国）" : "English (US)"
-    case .simplifiedChinese:
-      simplifiedChinese ? "简体中文" : "Simplified Chinese"
+    case .englishUS: .dictationEnglishUS
+    case .simplifiedChinese: .dictationSimplifiedChinese
     }
   }
 
-  func shortTitle(simplifiedChinese: Bool) -> String {
+  var shortTitleKey: LocalizationKey {
     switch self {
-    case .englishUS:
-      simplifiedChinese ? "英文" : "English"
-    case .simplifiedChinese:
-      simplifiedChinese ? "中文" : "Chinese"
+    case .englishUS: .dictationEnglishShort
+    case .simplifiedChinese: .dictationChineseShort
     }
   }
 
-  func statusTitle(simplifiedChinese: Bool) -> String {
+  var statusTitleKey: LocalizationKey {
     switch self {
-    case .englishUS:
-      simplifiedChinese ? "英文" : "English"
-    case .simplifiedChinese:
-      simplifiedChinese ? "中英混说" : "Chinese + English"
+    case .englishUS: .dictationEnglishShort
+    case .simplifiedChinese: .dictationChineseEnglish
     }
   }
 }
@@ -130,11 +143,11 @@ public enum MotionStyle: String, CaseIterable, Identifiable, Sendable {
 
   public var id: String { rawValue }
 
-  func title(simplifiedChinese: Bool) -> String {
+  var localizationKey: LocalizationKey {
     switch self {
-    case .quiet: simplifiedChinese ? "克制" : "Quiet"
-    case .liquid: simplifiedChinese ? "液态" : "Liquid"
-    case .bright: simplifiedChinese ? "鲜明" : "Bright"
+    case .quiet: .motionQuiet
+    case .liquid: .motionLiquid
+    case .bright: .motionBright
     }
   }
 
@@ -203,12 +216,12 @@ public enum DeliveryMode: String, CaseIterable, Identifiable, Codable, Sendable 
 
   public var id: String { rawValue }
 
-  public var title: String {
+  var localizationKey: LocalizationKey {
     switch self {
-    case .insertOnly: "Insert at cursor"
-    case .clipboardOnly: "Clipboard only"
-    case .insertAndClipboard: "Insert + clipboard"
-    case .saveOnly: "Save only"
+    case .insertOnly: .deliveryInsert
+    case .clipboardOnly: .deliveryClipboard
+    case .insertAndClipboard: .deliveryInsertClipboard
+    case .saveOnly: .deliverySave
     }
   }
 }
@@ -221,14 +234,14 @@ public enum RecorderPhase: Equatable, Sendable {
   case delivering
   case failed(String)
 
-  public var title: String {
+  var localizationKey: LocalizationKey {
     switch self {
-    case .idle: "Ready"
-    case .preparing: "Preparing"
-    case .recording: "Listening"
-    case .finalizing: "Finishing transcript"
-    case .delivering: "Sending text"
-    case .failed: "Needs attention"
+    case .idle: .phaseReady
+    case .preparing: .phasePreparing
+    case .recording: .phaseListening
+    case .finalizing: .phaseFinishing
+    case .delivering: .phaseSending
+    case .failed: .phaseAttention
     }
   }
 

@@ -12,8 +12,8 @@ extension AppModel {
         elapsedSeconds = 0
         statusMessage =
             isModelReady
-            ? "Preparing…"
-            : "Preparing local speech engine. This may download language assets."
+            ? settings.text(.hudPreparing)
+            : settings.text(.statusPreparingEngine)
         lastSavedSession = nil
         lastFinalizationSeconds = nil
         lastPrepareSeconds = nil
@@ -29,7 +29,7 @@ extension AppModel {
         guard canRecord else {
             fail(
                 presentRecordingPermissionBlocker()
-                    ?? "Microphone and Speech Recognition are required")
+                    ?? settings.text(.permissionRecordingRequired))
             return
         }
 
@@ -50,7 +50,8 @@ extension AppModel {
                 },
                 onError: { [weak self] error in
                     Task { @MainActor in
-                        self?.statusMessage = error.localizedDescription
+                        guard let self else { return }
+                        self.statusMessage = self.settings.localizedError(error)
                     }
                 }
             )
@@ -82,7 +83,7 @@ extension AppModel {
                 )
             }
             currentDraft = nil
-            fail(error.localizedDescription)
+            fail(settings.localizedError(error))
         }
     }
 
@@ -90,7 +91,7 @@ extension AppModel {
         guard phase == .recording else { return }
 
         phase = .finalizing
-        statusMessage = "Finalizing the last words…"
+        statusMessage = settings.text(.statusFinalizingWords)
         if let started = recordingStartedAt {
             elapsedSeconds = Date().timeIntervalSince(started)
         }
@@ -111,7 +112,7 @@ extension AppModel {
             var bestText = appleText
             var refinementStatus: String?
             if let refineTask {
-                statusMessage = "Refining…"
+                statusMessage = settings.text(.statusRefining)
                 let result = TranscriptRefinement.select(
                     apple: appleText,
                     refined: await refineTask.value,
@@ -128,7 +129,7 @@ extension AppModel {
             speechEngine.scheduleReserve(locale: settings.resolvedLocale)
 
             phase = .delivering
-            statusMessage = "Inserting text…"
+            statusMessage = settings.text(.statusInserting)
 
             let draft = currentDraft
             let capturedTargetApplicationName = self.targetApplicationName
@@ -166,11 +167,13 @@ extension AppModel {
             }
 
             if let deliveryError {
-                statusMessage = deliveryError.localizedDescription
+                statusMessage = settings.localizedError(deliveryError)
             } else if let saveError {
-                statusMessage = "Text delivered · archive failed: \(saveError.localizedDescription)"
+                statusMessage = settings.text(
+                    .statusTextDeliveredArchiveFailed, settings.localizedError(saveError))
             } else if let audioWriteWarning {
-                statusMessage = "Text delivered · audio may be incomplete: \(audioWriteWarning)"
+                statusMessage = settings.text(
+                    .statusTextDeliveredAudioIncomplete, audioWriteWarning)
             } else {
                 statusMessage = deliverySuccessMessage(for: settings.deliveryMode, saved: saved)
             }
@@ -269,10 +272,14 @@ extension AppModel {
         refreshRecentSessions()
         if let audioWriteWarning {
             fail(
-                "Transcription failed and audio may be incomplete (\(audioWriteWarning)): \(error.localizedDescription)"
+                settings.text(
+                    .statusTranscriptionAudioIncomplete,
+                    audioWriteWarning,
+                    settings.localizedError(error)
+                )
             )
         } else {
-            fail("Audio was saved, but final transcription failed: \(error.localizedDescription)")
+            fail(settings.text(.statusFinalTranscriptionFailed, settings.localizedError(error)))
         }
     }
 
@@ -294,13 +301,13 @@ extension AppModel {
         switch settings.deliveryMode {
         case .insertOnly, .insertAndClipboard:
             guard targetInput != nil, let targetApplicationName else {
-                return "Listening · original input unavailable; will keep text on clipboard"
+                return settings.text(.statusListeningClipboardFallback)
             }
-            return "Listening · will return to the original input in \(targetApplicationName)"
+            return settings.text(.statusListeningReturnToApp, targetApplicationName)
         case .clipboardOnly:
-            return "Listening · will copy the transcript"
+            return settings.text(.statusListeningCopy)
         case .saveOnly:
-            return "Listening · transcript will be saved"
+            return settings.text(.statusListeningSave)
         }
     }
 
@@ -317,13 +324,13 @@ extension AppModel {
     private func deliverySuccessMessage(for mode: DeliveryMode, saved: SavedSession?) -> String {
         switch mode {
         case .insertOnly:
-            "Inserted · audio and text saved"
+            settings.text(.statusInsertedSaved)
         case .clipboardOnly:
-            "Copied · audio and text saved"
+            settings.text(.statusCopiedSaved)
         case .insertAndClipboard:
-            "Inserted and copied · files saved"
+            settings.text(.statusInsertedCopiedSaved)
         case .saveOnly:
-            saved == nil ? "Finished" : "Audio and text saved"
+            saved == nil ? settings.text(.statusFinished) : settings.text(.statusAudioTextSaved)
         }
     }
 

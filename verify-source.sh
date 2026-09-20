@@ -18,6 +18,12 @@ swift test --jobs 4 -c debug --scratch-path "$scratch"
 bash -n build-app.sh install.sh verify-source.sh script/*.sh
 shellcheck build-app.sh install.sh verify-source.sh script/*.sh
 /usr/bin/plutil -lint Resources/Info.plist Resources/VoxType.entitlements >/dev/null
+for localization in Resources/*.lproj/*.strings; do
+  /usr/bin/plutil -lint "$localization" >/dev/null
+done
+for locale in zh-Hant zh-Hans ja ko es ru uk; do
+  test -f "README.$locale.md"
+done
 
 python3 - <<'PY'
 from pathlib import Path

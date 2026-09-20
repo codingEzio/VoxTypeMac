@@ -12,7 +12,7 @@ final class AppModel: ObservableObject {
   @Published var stableTranscript = ""
   @Published var draftTail = ""
   @Published var elapsedSeconds: TimeInterval = 0
-  @Published var statusMessage = "Ready · ⌥."
+  @Published var statusMessage = ""
   @Published var resolvedLocaleIdentifier = Locale.current.identifier
   @Published var isModelReady = false
   @Published var recentSessions: [SavedSession] = []
@@ -55,6 +55,7 @@ final class AppModel: ObservableObject {
     self.settings = settings
     self.permissions = permissions
     self.permissionSnapshot = permissions.snapshot
+    self.statusMessage = settings.text(.statusReadyShortcut, settings.dictationShortcut.title)
 
     permissions.$snapshot
       .receive(on: RunLoop.main)

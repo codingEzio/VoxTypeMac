@@ -3,6 +3,14 @@ import SwiftUI
 
 @MainActor
 extension AppModel {
+  func refreshLocalizedPresentation() {
+    settingsWindow?.title = settings.text(.settingsTitle, ProductIdentity.displayName)
+    recordingsWindow?.title = settings.text(.recordingsTitle)
+    if phase == .idle {
+      statusMessage = readinessMessage
+    }
+  }
+
   func showSettings() {
     let window = settingsWindow ?? makeSettingsWindow()
     settingsWindow = window
@@ -23,8 +31,7 @@ extension AppModel {
   fileprivate func makeSettingsWindow() -> NSWindow {
     let host = NSHostingController(rootView: SettingsRootView(model: self))
     let window = NSWindow(contentViewController: host)
-    window.title = settings.text(
-      "\(ProductIdentity.displayName) Settings", "\(ProductIdentity.displayName) 设置")
+    window.title = settings.text(.settingsTitle, ProductIdentity.displayName)
     window.styleMask = [.titled, .closable]
     window.setContentSize(
       NSSize(width: SettingsLayout.windowWidth, height: SettingsLayout.defaultHeight))

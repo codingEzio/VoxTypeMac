@@ -1,0 +1,3 @@
+"NSMicrophoneUsageDescription" = "VoxTypeMac 會在本機錄下你的語音，將語音轉成文字，並儲存你指定保留的音訊。";
+"NSSpeechRecognitionUsageDescription" = "VoxTypeMac 使用 Apple 裝置端的語音辨識功能，將錄音轉成文字。";
+"NSHumanReadableCopyright" = "Copyright © 2026 VoxTypeMac 貢獻者。";

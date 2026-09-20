@@ -21,7 +21,7 @@ import Testing
   for (shortcut, keyCode, flags, settingsTitle) in cases {
     #expect(shortcut.triggerKeyCode == keyCode)
     #expect(shortcut.requiredFlags == flags)
-    #expect(shortcut.settingsTitle == settingsTitle)
+    #expect(shortcut.localizationKey.english == settingsTitle)
     if shortcut.isModifierTap {
       #expect(!shortcut.matchesChord(flags: flags))
     } else {
@@ -33,13 +33,10 @@ import Testing
 
 @Test func modelTitlesCoverEveryUserVisibleCase() {
   #expect(
-    MotionStyle.allCases.map { $0.title(simplifiedChinese: false) }
+    MotionStyle.allCases.map { $0.localizationKey.english }
       == ["Quiet", "Liquid", "Bright"])
   #expect(
-    MotionStyle.allCases.map { $0.title(simplifiedChinese: true) }
-      == ["克制", "液态", "鲜明"])
-  #expect(
-    DeliveryMode.allCases.map(\.title)
+    DeliveryMode.allCases.map { $0.localizationKey.english }
       == ["Insert at cursor", "Clipboard only", "Insert + clipboard", "Save only"])
 
   let phases: [(RecorderPhase, String, Bool)] = [
@@ -51,7 +48,7 @@ import Testing
     (.failed("test"), "Needs attention", false),
   ]
   for (phase, title, isBusy) in phases {
-    #expect(phase.title == title)
+    #expect(phase.localizationKey.english == title)
     #expect(phase.isBusy == isBusy)
   }
 }
@@ -60,18 +57,12 @@ import Testing
   #expect(DictationLanguage.allCases == [.englishUS, .simplifiedChinese])
   #expect(DictationLanguage.englishUS.locale.identifier == "en-US")
   #expect(DictationLanguage.simplifiedChinese.locale.identifier == "zh-CN")
-  #expect(DictationLanguage.englishUS.title(simplifiedChinese: false) == "English (US)")
-  #expect(DictationLanguage.simplifiedChinese.title(simplifiedChinese: false) == "Simplified Chinese")
-  #expect(DictationLanguage.englishUS.title(simplifiedChinese: true) == "英语（美国）")
-  #expect(DictationLanguage.simplifiedChinese.title(simplifiedChinese: true) == "简体中文")
-  #expect(DictationLanguage.englishUS.shortTitle(simplifiedChinese: false) == "English")
-  #expect(DictationLanguage.simplifiedChinese.shortTitle(simplifiedChinese: false) == "Chinese")
-  #expect(DictationLanguage.englishUS.shortTitle(simplifiedChinese: true) == "英文")
-  #expect(DictationLanguage.simplifiedChinese.shortTitle(simplifiedChinese: true) == "中文")
-  #expect(DictationLanguage.englishUS.statusTitle(simplifiedChinese: false) == "English")
-  #expect(DictationLanguage.simplifiedChinese.statusTitle(simplifiedChinese: false) == "Chinese + English")
-  #expect(DictationLanguage.englishUS.statusTitle(simplifiedChinese: true) == "英文")
-  #expect(DictationLanguage.simplifiedChinese.statusTitle(simplifiedChinese: true) == "中英混说")
+  #expect(DictationLanguage.englishUS.titleKey.english == "English (US)")
+  #expect(DictationLanguage.simplifiedChinese.titleKey.english == "Simplified Chinese")
+  #expect(DictationLanguage.englishUS.shortTitleKey.english == "English")
+  #expect(DictationLanguage.simplifiedChinese.shortTitleKey.english == "Chinese")
+  #expect(DictationLanguage.englishUS.statusTitleKey.english == "English")
+  #expect(DictationLanguage.simplifiedChinese.statusTitleKey.english == "Chinese + English")
 }
 
 @Test @MainActor func waveformOverlayJoinsOtherAppsFullScreenSpaces() {

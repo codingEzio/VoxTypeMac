@@ -1,0 +1,3 @@
+"NSMicrophoneUsageDescription" = "VoxTypeMac 会在本机录制您的语音以进行转写，并保存您选择保留的音频。";
+"NSSpeechRecognitionUsageDescription" = "VoxTypeMac 使用 Apple 的设备端语音识别功能，将录音转换为文本。";
+"NSHumanReadableCopyright" = "版权所有 © 2026 VoxTypeMac 贡献者。";

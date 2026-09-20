@@ -4,7 +4,7 @@ import Foundation
 extension AppModel {
   func copyTranscript() {
     outputDispatcher.copy(transcript)
-    statusMessage = transcript.isEmpty ? "Nothing to copy yet" : "Transcript copied"
+    statusMessage = settings.text(transcript.isEmpty ? .statusNothingToCopy : .statusTranscriptCopied)
   }
 
   func openSaveFolder() {
@@ -26,7 +26,7 @@ extension AppModel {
 
   func retranscribeLatestAudio() async {
     guard let audioURL = await sessionStore.latestAudioURL(in: settings.saveFolderURL) else {
-      statusMessage = "No saved audio found"
+      statusMessage = settings.text(.statusNoSavedAudio)
       return
     }
     await retranscribeAudio(at: audioURL, locale: settings.resolvedLocale)
@@ -47,7 +47,7 @@ extension AppModel {
     transcript = ""
     stableTranscript = ""
     draftTail = ""
-    statusMessage = "Re-transcribing \(audioURL.lastPathComponent)…"
+    statusMessage = settings.text(.statusRetranscribing, audioURL.lastPathComponent)
     showHUD()
     let startedAt = Date()
 
@@ -69,18 +69,18 @@ extension AppModel {
       draftTail = ""
       lastSavedSession = try await sessionStore.replaceTranscript(for: audioURL, with: text)
       outputDispatcher.copy(text)
-      statusMessage = "Re-transcribed and copied"
+      statusMessage = settings.text(.statusRetranscribedCopied)
       phase = .idle
       hudController?.hide(after: 0.9)
       refreshRecentSessions()
     } catch {
-      fail(error.localizedDescription)
+      fail(settings.localizedError(error))
     }
   }
 
   func requestRecordingPermissions() async {
     if await permissions.requestRecordingPermissions() {
-      statusMessage = "Microphone and Speech Recognition are ready"
+      statusMessage = settings.text(.statusRecordingPermissionsReady)
     } else {
       _ = presentRecordingPermissionBlocker()
     }
@@ -98,24 +98,24 @@ extension AppModel {
     case .microphone:
       statusMessage =
         currentPermissions.microphone == .granted
-        ? "Microphone is ready"
-        : "Turn on \(ProductIdentity.displayName).app under Privacy & Security → Microphone"
+        ? settings.text(.statusMicrophoneReady)
+        : settings.text(.permissionHelpMicrophone, "\(ProductIdentity.displayName).app")
     case .speechRecognition:
       statusMessage =
         currentPermissions.speechRecognition == .granted
-        ? "Speech Recognition is ready"
-        : "Turn on \(ProductIdentity.displayName).app under Privacy & Security → Speech Recognition"
+        ? settings.text(.statusSpeechRecognitionReady)
+        : settings.text(.permissionHelpSpeechRecognition, "\(ProductIdentity.displayName).app")
     case .inputMonitoring:
       ensureHotkeyActive()
       statusMessage =
         currentPermissions.canUseGlobalHotkey
-        ? "Shortcut \(settings.dictationShortcut.title) is active"
-        : "Turn on \(ProductIdentity.displayName).app under Privacy & Security → Input Monitoring. That is not Accessibility."
+        ? settings.text(.statusShortcutActive, settings.dictationShortcut.title)
+        : settings.text(.permissionHelpInputMonitoring, "\(ProductIdentity.displayName).app")
     case .accessibility:
       statusMessage =
         currentPermissions.canInsertText
-        ? "Accessibility is ready"
-        : "Turn on \(ProductIdentity.displayName).app under Privacy & Security → Accessibility. That is not Input Monitoring."
+        ? settings.text(.statusAccessibilityReady)
+        : settings.text(.permissionHelpAccessibility, "\(ProductIdentity.displayName).app")
     }
     watchPermissionApproval()
   }
@@ -125,9 +125,9 @@ extension AppModel {
     hotkeyMonitor.stop()
     ensureHotkeyActive()
     if isHotkeyActive {
-      statusMessage = "Shortcut \(settings.dictationShortcut.title) is active"
+      statusMessage = settings.text(.statusShortcutActive, settings.dictationShortcut.title)
     } else {
-      statusMessage = "Hotkey still blocked by Input Monitoring"
+      statusMessage = settings.text(.statusHotkeyBlocked)
     }
   }
 
@@ -140,10 +140,12 @@ extension AppModel {
       try LaunchAtLoginManager.setEnabled(enabled)
       settings.launchAtLogin = enabled
       statusMessage =
-        enabled ? "\(ProductIdentity.displayName) will launch at login" : "Launch at login disabled"
+        enabled
+          ? settings.text(.statusLaunchAtLoginEnabled, ProductIdentity.displayName)
+          : settings.text(.statusLaunchAtLoginDisabled)
     } catch {
       settings.launchAtLogin = LaunchAtLoginManager.isEnabled
-      statusMessage = error.localizedDescription
+      statusMessage = settings.localizedError(error)
     }
   }
 
@@ -171,29 +173,31 @@ extension AppModel {
     settings.dictationLanguage = language
     isModelReady = false
     resolvedLocaleIdentifier = language.locale.identifier
-    statusMessage = settings.text(
-      "Warming \(language.title(simplifiedChinese: false))…",
-      "正在准备\(language.title(simplifiedChinese: true))…"
-    )
+    statusMessage = settings.text(.statusWarmingLanguage, settings.text(language.titleKey))
     prewarmSpeechModel()
   }
 
   var timingLabel: String? {
     var parts: [String] = []
     if let lastPrepareSeconds {
-      parts.append(Self.timingPhrase(lastPrepareSeconds, suffix: "start"))
+      parts.append(timingPhrase(lastPrepareSeconds, suffix: settings.text(.timingStart)))
     }
     if let lastFinalizationSeconds {
-      parts.append(Self.timingPhrase(lastFinalizationSeconds, suffix: "finish"))
+      parts.append(timingPhrase(lastFinalizationSeconds, suffix: settings.text(.timingFinish)))
     }
     return parts.isEmpty ? nil : parts.joined(separator: " · ")
   }
 
-  private static func timingPhrase(_ seconds: TimeInterval, suffix: String) -> String {
+  private func timingPhrase(_ seconds: TimeInterval, suffix: String) -> String {
     if seconds < 1 {
-      return "\(Int((seconds * 1_000).rounded())) ms \(suffix)"
+      let milliseconds = Int((seconds * 1_000).rounded())
+        .formatted(.number.locale(settings.uiLanguage.foundationLocale))
+      return "\(milliseconds) ms \(suffix)"
     }
-    return String(format: "%.2f s \(suffix)", seconds)
+    let value = seconds.formatted(
+      .number.precision(.fractionLength(2)).locale(settings.uiLanguage.foundationLocale)
+    )
+    return "\(value) s \(suffix)"
   }
 
   var elapsedLabel: String {
@@ -237,10 +241,7 @@ extension AppModel {
     let selectedLanguage = settings.dictationLanguage
     let locale = settings.resolvedLocale
     if phase == .idle, hotkeyMonitor.isRunning {
-      statusMessage = settings.text(
-        "Warming the local speech engine. First use may download language assets.",
-        "正在准备本地语音引擎。首次使用可能需要下载语言资源。"
-      )
+      statusMessage = settings.text(.statusWarmingEngine)
     }
 
     Task { [weak self] in
@@ -260,7 +261,7 @@ extension AppModel {
           guard self.settings.dictationLanguage == selectedLanguage else { return }
           self.isModelReady = false
           if self.phase == .idle, self.hotkeyMonitor.isRunning {
-            self.statusMessage = error.localizedDescription
+            self.statusMessage = self.settings.localizedError(error)
           }
         }
       }
@@ -283,14 +284,15 @@ extension AppModel {
   var readinessMessage: String {
     let shortcutTitle = settings.dictationShortcut.title
     if !permissionSnapshot.canUseGlobalHotkey {
-      return "Turn on \(ProductIdentity.displayName).app under Privacy & Security → Input Monitoring for \(shortcutTitle)"
+      return settings.text(
+        .statusInputMonitoringRequired, ProductIdentity.displayName, shortcutTitle)
     }
     if !permissionSnapshot.canInsertText {
-      return "Turn on \(ProductIdentity.displayName).app under Privacy & Security → Accessibility to insert text"
+      return settings.text(.statusAccessibilityRequired, ProductIdentity.displayName)
     }
     return isHotkeyActive
-      ? "Ready · \(shortcutTitle)"
-      : "Shortcut listener could not start"
+      ? settings.text(.statusReadyShortcut, shortcutTitle)
+      : settings.text(.statusShortcutListenerFailed)
   }
 
   func refreshRecentSessions() {

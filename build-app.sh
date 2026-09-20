@@ -54,6 +54,9 @@ mkdir -p "$CONTENTS/MacOS" "$CONTENTS/Resources"
 /usr/bin/ditto "$ROOT/external-data.json" "$CONTENTS/Resources/external-data.json"
 /usr/bin/ditto "$ROOT/config/qwen-asr.json" "$CONTENTS/Resources/qwen-asr.json"
 /usr/bin/ditto "$ROOT/script/qwen_refine.py" "$CONTENTS/Resources/qwen_refine.py"
+for localization in "$ROOT"/Resources/*.lproj; do
+  /usr/bin/ditto "$localization" "$CONTENTS/Resources/$(basename "$localization")"
+done
 chmod 755 "$CONTENTS/MacOS/$BINARY_NAME"
 
 /usr/bin/plutil -replace CFBundleDisplayName -string "$DISPLAY_NAME" "$CONTENTS/Info.plist"

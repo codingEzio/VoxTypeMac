@@ -49,7 +49,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
       title: model.settings.phaseTitle(model.phase),
       detail: statusDetail,
       breakdown:
-        "\(model.settings.dictationLanguage.shortTitle(simplifiedChinese: isChinese)) · \(model.settings.dictationShortcut.title) · \(model.recentSessions.count) recordings"
+        "\(model.settings.text(model.settings.dictationLanguage.shortTitleKey)) · \(model.settings.dictationShortcut.title) · \(model.settings.sessionCount(model.recentSessions.count))"
     )
     menu.addItem(header)
     menu.addItem(.separator())
@@ -65,7 +65,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     menu.addItem(.separator())
 
     let copy = actionItem(
-      model.settings.text("Copy Last Transcript", "复制上次识别"),
+      model.settings.text(.menuCopyLastTranscript),
       symbol: "doc.on.doc",
       action: #selector(copyLastTranscript),
       keyEquivalent: "c"
@@ -86,7 +86,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
       menu.addItem(.separator())
       menu.addItem(
         actionItem(
-          model.settings.text("Retry Shortcut Listener", "重试快捷键监听"),
+          model.settings.text(.menuRetryShortcut),
           symbol: "arrow.clockwise",
           action: #selector(retryShortcut)
         ))
@@ -95,13 +95,13 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     menu.addItem(.separator())
     menu.addItem(
       actionItem(
-        model.settings.text("Recordings…", "录音…"),
+        model.settings.text(.menuRecordings),
         symbol: "waveform",
         action: #selector(openRecordings)
       ))
     menu.addItem(
       actionItem(
-        model.settings.text("Settings…", "设置…"),
+        model.settings.text(.menuSettings),
         symbol: "gearshape",
         action: #selector(openSettings),
         keyEquivalent: ","
@@ -109,8 +109,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     menu.addItem(.separator())
 
     let quit = NSMenuItem(
-      title: model.settings.text(
-        "Quit \(ProductIdentity.displayName)", "退出 \(ProductIdentity.displayName)"),
+      title: model.settings.text(.menuQuit, ProductIdentity.displayName),
       action: #selector(quit),
       keyEquivalent: "q"
     )
@@ -118,31 +117,27 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     menu.addItem(quit)
   }
 
-  private var isChinese: Bool {
-    model.settings.uiLanguage == .simplifiedChinese
-  }
-
   private var statusDetail: String {
     if blockedPermission != nil {
-      return model.settings.text("Setup required", "需要设置")
+      return model.settings.text(.menuSetupRequired)
     }
     if !model.isHotkeyActive {
-      return model.settings.text("Shortcut unavailable", "快捷键不可用")
+      return model.settings.text(.menuShortcutUnavailable)
     }
     if model.phase == .recording {
       return model.elapsedLabel
     }
-    return model.settings.localizedStatus(model.statusMessage)
+    return model.statusMessage
   }
 
   private var primaryActionTitle: String {
     if model.phase == .recording {
-      return model.settings.text("Stop Recording", "停止录音")
+      return model.settings.text(.menuStopRecording)
     }
     if model.phase.isBusy {
       return model.settings.phaseTitle(model.phase)
     }
-    return model.settings.text("Start Recording", "开始录音")
+    return model.settings.text(.menuStartRecording)
   }
 
   private var blockedPermission: PrivacySection? {
@@ -150,13 +145,13 @@ final class StatusItemController: NSObject, NSMenuDelegate {
   }
 
   private func languageMenu() -> NSMenuItem {
-    let title = model.settings.text("Dictation Language", "听写语言")
+    let title = model.settings.text(.menuDictationLanguage)
     let root = NSMenuItem(title: title, action: nil, keyEquivalent: "")
     root.image = symbol("character.bubble", description: title)
     let submenu = NSMenu(title: title)
     for language in DictationLanguage.allCases {
       let item = NSMenuItem(
-        title: language.title(simplifiedChinese: isChinese),
+        title: model.settings.text(language.titleKey),
         action: #selector(selectLanguage),
         keyEquivalent: ""
       )
@@ -190,10 +185,10 @@ final class StatusItemController: NSObject, NSMenuDelegate {
 
   private func permissionActionTitle(_ section: PrivacySection) -> String {
     switch section {
-    case .microphone: model.settings.text("Enable Microphone…", "启用麦克风…")
-    case .speechRecognition: model.settings.text("Enable Speech Recognition…", "启用语音识别…")
-    case .inputMonitoring: model.settings.text("Enable Input Monitoring…", "启用输入监控…")
-    case .accessibility: model.settings.text("Enable Accessibility…", "启用辅助功能…")
+    case .microphone: model.settings.text(.permissionEnableMicrophone)
+    case .speechRecognition: model.settings.text(.permissionEnableSpeechRecognition)
+    case .inputMonitoring: model.settings.text(.permissionEnableInputMonitoring)
+    case .accessibility: model.settings.text(.permissionEnableAccessibility)
     }
   }
 

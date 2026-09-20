@@ -91,48 +91,99 @@ final class SettingsStore: ObservableObject {
         dictationLanguage.locale
     }
 
-    func text(_ english: String, _ simplifiedChinese: String) -> String {
-        uiLanguage == .simplifiedChinese ? simplifiedChinese : english
+    func text(_ key: LocalizationKey, _ arguments: CVarArg...) -> String {
+        LocalizationCatalog.string(key, language: uiLanguage, arguments: arguments)
+    }
+
+    func accessAttention(count: Int) -> String {
+        text(pluralKey(count: count, one: .settingsAccessAttentionOne,
+                       few: .settingsAccessAttentionFew,
+                       many: .settingsAccessAttentionMany,
+                       other: .settingsAccessAttentionOther), Int64(count))
+    }
+
+    func sessionCount(_ count: Int) -> String {
+        text(pluralKey(count: count, one: .menuSessionCountOne,
+                       few: .menuSessionCountFew,
+                       many: .menuSessionCountMany,
+                       other: .menuSessionCountOther), Int64(count))
+    }
+
+    private func pluralKey(
+        count: Int,
+        one: LocalizationKey,
+        few: LocalizationKey,
+        many: LocalizationKey,
+        other: LocalizationKey
+    ) -> LocalizationKey {
+        switch LocalizationPlural.category(for: count, language: uiLanguage) {
+        case .one: one
+        case .few: few
+        case .many: many
+        case .other: other
+        }
     }
 
     func phaseTitle(_ phase: RecorderPhase) -> String {
-        guard uiLanguage == .simplifiedChinese else { return phase.title }
-        return switch phase {
-        case .idle: "就绪"
-        case .preparing: "准备中"
-        case .recording: "正在聆听"
-        case .finalizing: "正在完成文字"
-        case .delivering: "正在发送文字"
-        case .failed: "需要处理"
-        }
+        text(phase.localizationKey)
     }
 
     func deliveryTitle(_ mode: DeliveryMode) -> String {
-        guard uiLanguage == .simplifiedChinese else { return mode.title }
-        return switch mode {
-        case .insertOnly: "插入光标位置"
-        case .clipboardOnly: "仅复制到剪贴板"
-        case .insertAndClipboard: "插入并保留到剪贴板"
-        case .saveOnly: "仅保存"
+        text(mode.localizationKey)
+    }
+
+    func localizedError(_ error: Error) -> String {
+        switch error {
+        case let error as OutputDispatcher.DeliveryError:
+            switch error {
+            case .accessibilityPermissionMissing: text(.errorAccessibilityRequired)
+            case .emptyTranscript: text(.errorEmptyTranscript)
+            case .originalInputUnavailable: text(.errorOriginalInputUnavailable)
+            case .pasteEventUnavailable: text(.errorPasteUnavailable, ProductIdentity.displayName)
+            case .pasteCouldNotBeConfirmed: text(.errorPasteUnconfirmed, ProductIdentity.displayName)
+            }
+        case let error as NativeSpeechEngine.EngineError:
+            switch error {
+            case .unsupportedLocale(let locale): text(.errorUnsupportedLocale, locale)
+            case .audioFormatUnavailable: text(.errorSpeechFormatUnavailable)
+            }
+        case let error as AudioCapture.CaptureError:
+            switch error {
+            case .invalidInputFormat: text(.errorMicrophoneFormatUnavailable)
+            }
+        case let error as RefinementError:
+            switch error {
+            case .modelUnavailable: text(.errorRefinementModelUnavailable)
+            case .downloadFailed: text(.errorRefinementDownloadFailed)
+            case .checksumMismatch: text(.errorRefinementChecksum)
+            case .missingRuntime: text(.errorRefinementHelperMissing)
+            case .timedOut: text(.errorRefinementTimedOut)
+            case .helperFailed: text(.errorRefinementHelperFailed)
+            case .emptyResult: text(.errorRefinementEmpty)
+            }
+        default:
+            error.localizedDescription
         }
     }
 
-    func localizedStatus(_ status: String) -> String {
-        guard uiLanguage == .simplifiedChinese else { return status }
-        if status.hasPrefix("Ready · ") {
-            return "就绪 · \(status.dropFirst("Ready · ".count))"
+    func sessionStatus(_ status: String) -> String {
+        if status.hasPrefix("failed: ") {
+            return text(.sessionFailed, String(status.dropFirst("failed: ".count)))
         }
-        if status.hasPrefix("Enable Input Monitoring for ") {
-            return "请启用输入监控以使用 \(status.dropFirst("Enable Input Monitoring for ".count))"
+        let key: LocalizationKey? = switch status {
+        case "recording": .sessionRecording
+        case "audio-only": .sessionAudioOnly
+        case "complete": .sessionComplete
+        case "retranscribed": .sessionRetranscribed
+        case "audio-write-warning": .sessionAudioWriteWarning
+        case "partial-after-error": .sessionPartialAfterError
+        case "apple-fallback": .sessionAppleFallback
+        case "qwen3-refined": .sessionQwenRefined
+        case "sensevoice-refined": .sessionSenseVoiceRefined
+        case "sensevoice-merged": .sessionSenseVoiceMerged
+        default: nil
         }
-        let known = [
-            "Enable Accessibility to insert text at the cursor": "请启用辅助功能以在光标处插入文字",
-            "Right Command listener could not start": "右 Command 监听器无法启动",
-            "Shortcut listener could not start": "快捷键监听器无法启动",
-            "Preparing…": "准备中…",
-            "Refining…": "正在优化…"
-        ]
-        return known[status] ?? status
+        return key.map { text($0) } ?? status
     }
 
     private func persist() {

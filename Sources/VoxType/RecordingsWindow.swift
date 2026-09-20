@@ -18,7 +18,7 @@ extension AppModel {
   fileprivate func makeRecordingsWindow() -> NSWindow {
     let host = NSHostingController(rootView: RecordingsRootView(model: self))
     let window = NSWindow(contentViewController: host)
-    window.title = settings.text("Recordings", "录音")
+    window.title = settings.text(.recordingsTitle)
     window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
     window.contentMinSize = NSSize(width: 560, height: 300)
     window.setContentSize(NSSize(width: 660, height: 420))
@@ -37,7 +37,7 @@ private struct RecordingsRootView: View {
     VStack(spacing: 0) {
       HStack(spacing: 10) {
         VStack(alignment: .leading, spacing: 2) {
-          Text(model.settings.text("Saved locally", "保存在本机"))
+          Text(model.settings.text(.recordingsSavedLocally))
             .font(.headline)
           Text(model.settings.saveFolder)
             .font(.caption)
@@ -47,10 +47,10 @@ private struct RecordingsRootView: View {
             .textSelection(.enabled)
         }
         Spacer()
-        Button(model.settings.text("Open Folder", "打开文件夹"), systemImage: "folder") {
+        Button(model.settings.text(.settingsOpenFolder), systemImage: "folder") {
           model.openSaveFolder()
         }
-        Button(model.settings.text("Redo Latest", "重新识别最新"), systemImage: "arrow.clockwise") {
+        Button(model.settings.text(.recordingsRedoLatest), systemImage: "arrow.clockwise") {
           Task { await model.retranscribeLatestAudio() }
         }
         .disabled(model.phase.isBusy || model.recentSessions.isEmpty)
@@ -62,13 +62,10 @@ private struct RecordingsRootView: View {
 
       if model.recentSessions.isEmpty {
         ContentUnavailableView(
-          model.settings.text("No Recordings", "还没有录音"),
+          model.settings.text(.recordingsEmpty),
           systemImage: "waveform",
           description: Text(
-            model.settings.text(
-              "New recordings appear here automatically.",
-              "新的录音会自动显示在这里。"
-            ))
+            model.settings.text(.recordingsEmptyDetail))
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
       } else {

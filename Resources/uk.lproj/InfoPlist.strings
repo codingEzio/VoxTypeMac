@@ -1,0 +1,3 @@
+"NSMicrophoneUsageDescription" = "VoxTypeMac записує ваш голос локально, щоб перетворити його на текст і зберегти аудіозапис, який ви вирішили залишити.";
+"NSSpeechRecognitionUsageDescription" = "VoxTypeMac використовує вбудоване в пристрій розпізнавання мовлення Apple, щоб перетворювати ваші записи на текст.";
+"NSHumanReadableCopyright" = "Авторське право © 2026, учасники проєкту VoxTypeMac.";

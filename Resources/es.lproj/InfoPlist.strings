@@ -1,0 +1,3 @@
+"NSMicrophoneUsageDescription" = "VoxTypeMac graba tu voz localmente para transcribirla y guardar el audio que decidas conservar.";
+"NSSpeechRecognitionUsageDescription" = "VoxTypeMac utiliza el reconocimiento de voz de Apple integrado en el dispositivo para convertir tus grabaciones en texto.";
+"NSHumanReadableCopyright" = "Derechos de autor © 2026 colaboradores de VoxTypeMac.";

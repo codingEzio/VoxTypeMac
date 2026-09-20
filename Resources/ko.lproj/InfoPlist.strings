@@ -1,0 +1,3 @@
+"NSMicrophoneUsageDescription" = "VoxTypeMac은 받아쓰기 내용을 텍스트로 변환하고 보관을 요청한 오디오를 저장하기 위해 음성을 로컬에서 녹음합니다.";
+"NSSpeechRecognitionUsageDescription" = "VoxTypeMac은 Apple의 기기 내 음성 인식을 사용해 녹음 내용을 텍스트로 변환합니다.";
+"NSHumanReadableCopyright" = "저작권 © 2026 VoxTypeMac 기여자";

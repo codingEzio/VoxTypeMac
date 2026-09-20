@@ -43,22 +43,25 @@ struct SettingsRootView: View {
       model.refreshPermissions()
       model.watchPermissionApproval()
     }
+    .onChange(of: settings.uiLanguage) {
+      model.refreshLocalizedPresentation()
+    }
   }
 
   private var generalSection: some View {
-    settingsSection(settings.text("General", "通用")) {
-      settingsRow(settings.text("Interface", "界面")) {
+    settingsSection(settings.text(.settingsGeneral)) {
+      settingsRow(settings.text(.settingsInterface)) {
         Picker("", selection: $settings.uiLanguage) {
           ForEach(UILanguage.allCases) { language in
             Text(language.title).tag(language)
           }
         }
         .labelsHidden()
-        .pickerStyle(.segmented)
+        .pickerStyle(.menu)
         .frame(width: SettingsLayout.controlWidth)
       }
 
-      settingsRow(settings.text("Shortcut", "快捷键")) {
+      settingsRow(settings.text(.settingsShortcut)) {
         Picker(
           "",
           selection: Binding(
@@ -67,7 +70,7 @@ struct SettingsRootView: View {
           )
         ) {
           ForEach(DictationShortcut.allCases) { shortcut in
-            Text(shortcut.settingsTitle).tag(shortcut)
+            Text(settings.text(shortcut.localizationKey)).tag(shortcut)
           }
         }
         .labelsHidden()
@@ -76,15 +79,15 @@ struct SettingsRootView: View {
         .disabled(model.phase.isBusy)
       }
 
-      settingsRow(settings.text("Launch", "启动")) {
-        Toggle(settings.text("At login", "登录时"), isOn: launchAtLoginBinding)
+      settingsRow(settings.text(.settingsLaunch)) {
+        Toggle(settings.text(.settingsAtLogin), isOn: launchAtLoginBinding)
       }
     }
   }
 
   private var dictationSection: some View {
-    settingsSection(settings.text("Dictation", "听写")) {
-      settingsRow(settings.text("Language", "语言")) {
+    settingsSection(settings.text(.settingsDictation)) {
+      settingsRow(settings.text(.settingsLanguage)) {
         Picker(
           "",
           selection: Binding(
@@ -93,26 +96,26 @@ struct SettingsRootView: View {
           )
         ) {
           ForEach(DictationLanguage.allCases) { language in
-            Text(language.title(simplifiedChinese: settings.uiLanguage == .simplifiedChinese))
+            Text(settings.text(language.titleKey))
               .tag(language)
           }
         }
         .labelsHidden()
-        .accessibilityLabel(settings.text("Dictation language", "听写语言"))
+        .accessibilityLabel(settings.text(.settingsDictationLanguage))
         .pickerStyle(.menu)
         .frame(width: SettingsLayout.controlWidth, alignment: .leading)
         .disabled(model.phase.isBusy)
       }
 
-      settingsRow(settings.text("Accuracy", "准确度")) {
+      settingsRow(settings.text(.settingsAccuracy)) {
         refinementControl
       }
     }
   }
 
   private var outputSection: some View {
-    settingsSection(settings.text("Output", "输出")) {
-      settingsRow(settings.text("Send text", "发送文字")) {
+    settingsSection(settings.text(.settingsOutput)) {
+      settingsRow(settings.text(.settingsSendText)) {
         Picker("", selection: $settings.deliveryMode) {
           ForEach(DeliveryMode.allCases) { mode in
             Text(settings.deliveryTitle(mode)).tag(mode)
@@ -123,24 +126,24 @@ struct SettingsRootView: View {
         .frame(width: SettingsLayout.controlWidth, alignment: .leading)
       }
 
-      settingsRow(settings.text("Clipboard", "剪贴板")) {
+      settingsRow(settings.text(.settingsClipboard)) {
         Toggle(
-          settings.text("Restore after inserting", "插入后恢复"),
+          settings.text(.settingsRestoreClipboard),
           isOn: $settings.preserveClipboard
         )
       }
 
-      settingsRow(settings.text("Status", "状态")) {
+      settingsRow(settings.text(.settingsStatus)) {
         Toggle(
-          settings.text("Show while recording", "录音时显示"),
+          settings.text(.settingsShowWhileRecording),
           isOn: $settings.showFloatingHUD
         )
       }
 
-      settingsRow(settings.text("HUD style", "浮窗样式")) {
+      settingsRow(settings.text(.settingsHUDStyle)) {
         Picker("", selection: $settings.motionStyle) {
           ForEach(MotionStyle.allCases) { style in
-            Text(style.title(simplifiedChinese: settings.uiLanguage == .simplifiedChinese))
+            Text(settings.text(style.localizationKey))
               .tag(style)
           }
         }
@@ -149,10 +152,12 @@ struct SettingsRootView: View {
         .frame(width: SettingsLayout.controlWidth)
       }
 
-      settingsRow(settings.text("Insert delay", "插入延迟")) {
+      settingsRow(settings.text(.settingsInsertDelay)) {
         HStack(spacing: 8) {
           Slider(value: pasteDelayBinding, in: 50...800, step: 10)
-          Text("\(settings.pasteDelayMilliseconds) ms")
+          Text(
+            "\(settings.pasteDelayMilliseconds.formatted(.number.locale(settings.uiLanguage.foundationLocale))) ms"
+          )
             .font(.callout.monospacedDigit())
             .foregroundStyle(.secondary)
             .frame(width: 56, alignment: .trailing)
@@ -168,14 +173,18 @@ struct SettingsRootView: View {
       case .downloading:
         ProgressView(value: refinement.downloadProgress)
           .frame(width: 92)
-        Text("\(Int((refinement.downloadProgress * 100).rounded()))%")
+        Text(
+          refinement.downloadProgress,
+          format: .percent.precision(.fractionLength(0))
+            .locale(settings.uiLanguage.foundationLocale)
+        )
           .monospacedDigit()
           .foregroundStyle(.secondary)
       case .ready:
         Label(refinement.backend.title, systemImage: "checkmark.circle.fill")
           .foregroundStyle(.green)
-        Menu(settings.text("Manage", "管理")) {
-          Button(settings.text("Remove Model", "移除模型"), role: .destructive) {
+        Menu(settings.text(.settingsManage)) {
+          Button(settings.text(.settingsRemoveModel), role: .destructive) {
             try? refinement.remove()
           }
         }
@@ -184,7 +193,7 @@ struct SettingsRootView: View {
       case .unavailable, .failed:
         Text(refinementStateTitle)
           .foregroundStyle(.secondary)
-        Button(settings.text("Download SenseVoice…", "下载 SenseVoice…")) {
+        Button(settings.text(.settingsDownloadSenseVoice)) {
           Task { await refinement.install() }
         }
       }
@@ -195,17 +204,14 @@ struct SettingsRootView: View {
   private var accessCallout: some View {
     HStack(spacing: 10) {
       Label(
-        settings.text(
-          "\(missingPermissions.count) access items need attention",
-          "有 \(missingPermissions.count) 项权限需要处理"
-        ),
+        settings.accessAttention(count: missingPermissions.count),
         systemImage: "exclamationmark.triangle.fill"
       )
       .foregroundStyle(.orange)
 
       Spacer()
 
-      Menu(settings.text("Review Access…", "检查权限…")) {
+      Menu(settings.text(.settingsReviewAccess)) {
         ForEach(missingPermissions, id: \.self) { section in
           Button(permissionTitle(section)) {
             Task { await model.grantPermission(section) }
@@ -225,13 +231,13 @@ struct SettingsRootView: View {
       Button {
         model.showRecordings()
       } label: {
-        Label(settings.text("Recordings…", "录音…"), systemImage: "waveform")
+        Label(settings.text(.settingsRecordings), systemImage: "waveform")
       }
 
       Button {
         model.openSaveFolder()
       } label: {
-        Label(settings.text("Open Folder", "打开文件夹"), systemImage: "folder")
+        Label(settings.text(.settingsOpenFolder), systemImage: "folder")
       }
 
       Spacer()
@@ -289,32 +295,32 @@ struct SettingsRootView: View {
 
   private var refinementStateTitle: String {
     switch refinement.state {
-    case .unavailable: settings.text("Not downloaded", "尚未下载")
-    case .downloading: settings.text("Downloading", "正在下载")
-    case .ready: settings.text("Ready", "已就绪")
-    case .failed: settings.text("Unavailable", "不可用")
+    case .unavailable: settings.text(.modelNotDownloaded)
+    case .downloading: settings.text(.modelDownloading)
+    case .ready: settings.text(.modelReady)
+    case .failed: settings.text(.modelUnavailable)
     }
   }
 
   private func permissionTitle(_ section: PrivacySection) -> String {
     switch section {
-    case .microphone: settings.text("Microphone", "麦克风")
-    case .speechRecognition: settings.text("Speech Recognition", "语音识别")
-    case .inputMonitoring: settings.text("Input Monitoring", "输入监控")
-    case .accessibility: settings.text("Accessibility", "辅助功能")
+    case .microphone: settings.text(.permissionMicrophone)
+    case .speechRecognition: settings.text(.permissionSpeechRecognition)
+    case .inputMonitoring: settings.text(.permissionInputMonitoring)
+    case .accessibility: settings.text(.permissionAccessibility)
     }
   }
 
   private func permissionHelp(_ section: PrivacySection) -> String {
     switch section {
     case .microphone:
-      "Turn on \(ProductIdentity.displayName) under Privacy & Security → Microphone."
+      settings.text(.permissionHelpMicrophone, ProductIdentity.displayName)
     case .speechRecognition:
-      "Turn on \(ProductIdentity.displayName) under Privacy & Security → Speech Recognition."
+      settings.text(.permissionHelpSpeechRecognition, ProductIdentity.displayName)
     case .inputMonitoring:
-      "Turn on \(ProductIdentity.displayName) under Privacy & Security → Input Monitoring. That is not Accessibility."
+      settings.text(.permissionHelpInputMonitoring, ProductIdentity.displayName)
     case .accessibility:
-      "Turn on \(ProductIdentity.displayName) under Privacy & Security → Accessibility. That is not Input Monitoring."
+      settings.text(.permissionHelpAccessibility, ProductIdentity.displayName)
     }
   }
 }
