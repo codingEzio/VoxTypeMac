@@ -21,9 +21,15 @@ Status: locally complete on 2026-09-20.
 - Added source privacy checks, native tests, release inventory checks, and a
   clean-clone verification path.
 
-## Verification boundary
+## Verified locally
 
-Source checks, native tests, app build, signing verification, package inventory,
-and clean-clone build are required. Microphone, TCC, global shortcut, text
-insertion, launch-at-login, and interactive menu/HUD behavior remain installed-
-app acceptance and are not claimed by headless checks.
+- `./verify-source.sh`: passed with 60 focused native tests.
+- Release app build and strict ad-hoc signature verification: passed.
+- Clean, no-remote clone source verification and release build: passed.
+- Release ZIP inventory and checksum verification: passed.
+- Commits: `cccc4d1` and `2e0ed69`.
+
+Microphone, TCC, global shortcut, text insertion, launch-at-login, and interactive
+menu/HUD behavior remain installed-app acceptance. This task did not install or
+launch the derivative, replace the private app, download models, create a remote,
+push, or publish.
