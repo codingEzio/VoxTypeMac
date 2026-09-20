@@ -45,8 +45,12 @@ git -C "$ROOT" archive HEAD | /usr/bin/tar -x -C "$package"
 }
 
 rm -f -- "$archive" "$checksums"
-/usr/bin/ditto -c -k --sequesterRsrc --keepParent "$package" "$archive"
+/usr/bin/ditto -c -k --norsrc --noextattr --noacl --noqtn --keepParent "$package" "$archive"
 /usr/bin/unzip -tq "$archive" >/dev/null
+if /usr/bin/zipinfo -1 "$archive" | /usr/bin/grep -q '^__MACOSX/'; then
+  echo "Release archive contains AppleDouble metadata." >&2
+  exit 1
+fi
 
 verification="$staging/verification"
 mkdir -p "$verification"
