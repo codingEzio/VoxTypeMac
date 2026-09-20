@@ -1,5 +1,7 @@
 # VoxTypeMac
 
+[English](README.md) · [繁體中文](README.zh-Hant.md) · [简体中文](README.zh-Hans.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Español](README.es.md) · [Русский](README.ru.md) · [Українська](README.uk.md)
+
 VoxTypeMac is a local-first macOS menu-bar dictation app for Apple Silicon.
 Press the selected shortcut, speak, press it again, and the transcript is
 delivered to the input field that was focused when recording began.
