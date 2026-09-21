@@ -5,6 +5,16 @@ extension AppModel {
     func startRecording() async {
         guard !phase.isBusy else { return }
 
+        let startMode = RecordingStartPolicy.mode(
+            appleSpeechReady: isModelReady,
+            refinementReady: refinement.state == .ready
+        )
+        guard startMode != .waitForSpeechModel else {
+            statusMessage = settings.text(.statusWarmingEngine)
+            prewarmSpeechModel()
+            return
+        }
+
         phase = .preparing
         transcript = ""
         stableTranscript = ""
@@ -41,30 +51,42 @@ extension AppModel {
             )
             currentDraft = draft
 
-            async let startedLocale = speechEngine.start(
-                locale: settings.resolvedLocale,
-                onUpdate: { [weak self] live in
-                    Task { @MainActor in
-                        self?.receiveTranscriptUpdate(live)
+            switch startMode {
+            case .liveSpeech:
+                resolvedLocaleIdentifier = try await speechEngine.start(
+                    locale: settings.resolvedLocale,
+                    onUpdate: { [weak self] live in
+                        Task { @MainActor in
+                            self?.receiveTranscriptUpdate(live)
+                        }
+                    },
+                    onError: { [weak self] error in
+                        Task { @MainActor in
+                            guard let self else { return }
+                            self.statusMessage = self.settings.localizedError(error)
+                        }
                     }
-                },
-                onError: { [weak self] error in
-                    Task { @MainActor in
-                        guard let self else { return }
-                        self.statusMessage = self.settings.localizedError(error)
+                )
+                let activeSpeechEngine = speechEngine
+                _ = try audioCapture.start(
+                    writingTo: draft.audioURL,
+                    onBuffer: { [weak activeSpeechEngine] buffer, time in
+                        activeSpeechEngine?.consume(buffer, at: time)
                     }
-                }
-            )
-            let activeSpeechEngine = speechEngine
-            _ = try audioCapture.start(
-                writingTo: draft.audioURL,
-                onBuffer: { [weak activeSpeechEngine] buffer, time in
-                    activeSpeechEngine?.consume(buffer, at: time)
-                }
-            )
-            resolvedLocaleIdentifier = try await startedLocale
+                )
+            case .deferredRefinement:
+                resolvedLocaleIdentifier = settings.resolvedLocale.identifier
+                _ = try audioCapture.start(
+                    writingTo: draft.audioURL,
+                    onBuffer: { _, _ in }
+                )
+            case .waitForSpeechModel:
+                preconditionFailure("Recording start policy changed after validation")
+            }
 
-            isModelReady = true
+            if startMode == .liveSpeech {
+                isModelReady = true
+            }
             lastPrepareSeconds = Date().timeIntervalSince(prepareStartedAt)
             recordingStartedAt = Date()
             phase = .recording
