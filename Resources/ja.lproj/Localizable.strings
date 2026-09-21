@@ -6,11 +6,11 @@
 "shortcut.control_slash" = "⌃ スラッシュ";
 "shortcut.right_option" = "右 Option キー";
 "shortcut.right_command" = "右 Command キー";
-"dictation.english_us" = "英語（米国）";
-"dictation.simplified_chinese" = "簡体字中国語";
-"dictation.english_short" = "英語";
-"dictation.chinese_short" = "中国語";
-"dictation.chinese_english" = "中国語＋英語";
+"dictation.english_us" = "英語のみ";
+"dictation.simplified_chinese" = "英語＋中国語";
+"dictation.english_short" = "英語のみ";
+"dictation.chinese_short" = "英語＋中国語";
+"dictation.chinese_english" = "英語＋中国語";
 "motion.quiet" = "控えめ";
 "motion.liquid" = "流動的";
 "motion.bright" = "鮮明";
@@ -31,8 +31,8 @@
 "settings.launch" = "起動";
 "settings.at_login" = "ログイン時に起動";
 "settings.dictation" = "音声入力";
-"settings.language" = "言語";
-"settings.dictation_language" = "音声入力言語";
+"settings.language" = "音声入力モード";
+"settings.dictation_language" = "音声入力モード";
 "settings.accuracy" = "認識補正";
 "settings.output" = "出力";
 "settings.send_text" = "テキストの送信方法";
@@ -80,7 +80,7 @@
 "menu.shortcut_unavailable" = "ショートカットを利用できません";
 "menu.start_recording" = "録音を開始";
 "menu.stop_recording" = "録音を停止";
-"menu.dictation_language" = "音声入力言語";
+"menu.dictation_language" = "音声入力モード";
 "menu.session_count.one" = "セッション：%lld";
 "menu.session_count.few" = "セッション：%lld";
 "menu.session_count.many" = "セッション：%lld";

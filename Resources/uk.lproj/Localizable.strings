@@ -6,11 +6,11 @@
 "shortcut.control_slash" = "⌃ скісна риска";
 "shortcut.right_option" = "Правий Option";
 "shortcut.right_command" = "Правий Command";
-"dictation.english_us" = "Англійська (США)";
-"dictation.simplified_chinese" = "Спрощена китайська";
-"dictation.english_short" = "Англійська";
-"dictation.chinese_short" = "Китайська";
-"dictation.chinese_english" = "Китайська й англійська";
+"dictation.english_us" = "Лише англійська";
+"dictation.simplified_chinese" = "Англійська + китайська";
+"dictation.english_short" = "Лише англійська";
+"dictation.chinese_short" = "Англійська + китайська";
+"dictation.chinese_english" = "Англійська + китайська";
 "motion.quiet" = "Стриманий";
 "motion.liquid" = "Плавний";
 "motion.bright" = "Виразний";
@@ -31,8 +31,8 @@
 "settings.launch" = "Запуск";
 "settings.at_login" = "Під час входу";
 "settings.dictation" = "Диктування";
-"settings.language" = "Мова";
-"settings.dictation_language" = "Мова диктування";
+"settings.language" = "Режим диктування";
+"settings.dictation_language" = "Режим диктування";
 "settings.accuracy" = "Точність";
 "settings.output" = "Виведення";
 "settings.send_text" = "Надсилання тексту";
@@ -80,7 +80,7 @@
 "menu.shortcut_unavailable" = "Сполучення клавіш недоступне";
 "menu.start_recording" = "Почати запис";
 "menu.stop_recording" = "Зупинити запис";
-"menu.dictation_language" = "Мова диктування";
+"menu.dictation_language" = "Режим диктування";
 "menu.session_count.one" = "%lld сеанс";
 "menu.session_count.few" = "%lld сеанси";
 "menu.session_count.many" = "%lld сеансів";

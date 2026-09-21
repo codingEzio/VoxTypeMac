@@ -6,11 +6,11 @@
 "shortcut.control_slash" = "⌃ 슬래시";
 "shortcut.right_option" = "오른쪽 Option 키";
 "shortcut.right_command" = "오른쪽 Command 키";
-"dictation.english_us" = "영어(미국)";
-"dictation.simplified_chinese" = "중국어(간체)";
-"dictation.english_short" = "영어";
-"dictation.chinese_short" = "중국어";
-"dictation.chinese_english" = "중국어 + 영어";
+"dictation.english_us" = "영어 전용";
+"dictation.simplified_chinese" = "영어 + 중국어";
+"dictation.english_short" = "영어 전용";
+"dictation.chinese_short" = "영어 + 중국어";
+"dictation.chinese_english" = "영어 + 중국어";
 "motion.quiet" = "차분함";
 "motion.liquid" = "유려함";
 "motion.bright" = "경쾌함";
@@ -31,8 +31,8 @@
 "settings.launch" = "실행";
 "settings.at_login" = "로그인 시 실행";
 "settings.dictation" = "받아쓰기";
-"settings.language" = "언어";
-"settings.dictation_language" = "받아쓰기 언어";
+"settings.language" = "받아쓰기 모드";
+"settings.dictation_language" = "받아쓰기 모드";
 "settings.accuracy" = "정확도";
 "settings.output" = "출력";
 "settings.send_text" = "텍스트 전달";
@@ -80,7 +80,7 @@
 "menu.shortcut_unavailable" = "단축키를 사용할 수 없음";
 "menu.start_recording" = "녹음 시작";
 "menu.stop_recording" = "녹음 중지";
-"menu.dictation_language" = "받아쓰기 언어";
+"menu.dictation_language" = "받아쓰기 모드";
 "menu.session_count.one" = "세션: %lld";
 "menu.session_count.few" = "세션: %lld";
 "menu.session_count.many" = "세션: %lld";

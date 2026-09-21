@@ -6,11 +6,11 @@
 "shortcut.control_slash" = "⌃ 斜杠";
 "shortcut.right_option" = "右侧 Option 键";
 "shortcut.right_command" = "右侧 Command 键";
-"dictation.english_us" = "英语（美国）";
-"dictation.simplified_chinese" = "简体中文";
-"dictation.english_short" = "英语";
-"dictation.chinese_short" = "中文";
-"dictation.chinese_english" = "中英混说";
+"dictation.english_us" = "仅英语";
+"dictation.simplified_chinese" = "英语＋中文";
+"dictation.english_short" = "仅英语";
+"dictation.chinese_short" = "英语＋中文";
+"dictation.chinese_english" = "英语＋中文";
 "motion.quiet" = "克制";
 "motion.liquid" = "流畅";
 "motion.bright" = "鲜明";
@@ -31,8 +31,8 @@
 "settings.launch" = "启动";
 "settings.at_login" = "登录时启动";
 "settings.dictation" = "听写";
-"settings.language" = "语言";
-"settings.dictation_language" = "听写语言";
+"settings.language" = "听写模式";
+"settings.dictation_language" = "听写模式";
 "settings.accuracy" = "识别优化";
 "settings.output" = "输出";
 "settings.send_text" = "发送文字";
@@ -80,7 +80,7 @@
 "menu.shortcut_unavailable" = "快捷键不可用";
 "menu.start_recording" = "开始录音";
 "menu.stop_recording" = "停止录音";
-"menu.dictation_language" = "听写语言";
+"menu.dictation_language" = "听写模式";
 "menu.session_count.one" = "会话：%lld";
 "menu.session_count.few" = "会话：%lld";
 "menu.session_count.many" = "会话：%lld";

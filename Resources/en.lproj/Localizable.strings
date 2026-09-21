@@ -6,11 +6,11 @@
 "shortcut.control_slash" = "⌃ Slash";
 "shortcut.right_option" = "Right Option";
 "shortcut.right_command" = "Right Command";
-"dictation.english_us" = "English (US)";
-"dictation.simplified_chinese" = "Simplified Chinese";
-"dictation.english_short" = "English";
-"dictation.chinese_short" = "Chinese";
-"dictation.chinese_english" = "Chinese + English";
+"dictation.english_us" = "English Only";
+"dictation.simplified_chinese" = "English + Chinese";
+"dictation.english_short" = "English Only";
+"dictation.chinese_short" = "English + Chinese";
+"dictation.chinese_english" = "English + Chinese";
 "motion.quiet" = "Quiet";
 "motion.liquid" = "Liquid";
 "motion.bright" = "Bright";
@@ -31,8 +31,8 @@
 "settings.launch" = "Launch";
 "settings.at_login" = "At login";
 "settings.dictation" = "Dictation";
-"settings.language" = "Language";
-"settings.dictation_language" = "Dictation language";
+"settings.language" = "Dictation mode";
+"settings.dictation_language" = "Dictation mode";
 "settings.accuracy" = "Accuracy";
 "settings.output" = "Output";
 "settings.send_text" = "Send text";
@@ -80,7 +80,7 @@
 "menu.shortcut_unavailable" = "Shortcut unavailable";
 "menu.start_recording" = "Start Recording";
 "menu.stop_recording" = "Stop Recording";
-"menu.dictation_language" = "Dictation Language";
+"menu.dictation_language" = "Dictation Mode";
 "menu.session_count.one" = "Session: %lld";
 "menu.session_count.few" = "Sessions: %lld";
 "menu.session_count.many" = "Sessions: %lld";

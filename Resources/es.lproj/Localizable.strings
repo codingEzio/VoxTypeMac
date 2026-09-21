@@ -6,11 +6,11 @@
 "shortcut.control_slash" = "⌃ Barra";
 "shortcut.right_option" = "Opción derecha";
 "shortcut.right_command" = "Comando derecho";
-"dictation.english_us" = "Inglés (EE. UU.)";
-"dictation.simplified_chinese" = "Chino simplificado";
-"dictation.english_short" = "Inglés";
-"dictation.chinese_short" = "Chino";
-"dictation.chinese_english" = "Chino e inglés";
+"dictation.english_us" = "Solo inglés";
+"dictation.simplified_chinese" = "Inglés + chino";
+"dictation.english_short" = "Solo inglés";
+"dictation.chinese_short" = "Inglés + chino";
+"dictation.chinese_english" = "Inglés + chino";
 "motion.quiet" = "Discreto";
 "motion.liquid" = "Fluido";
 "motion.bright" = "Vivo";
@@ -31,8 +31,8 @@
 "settings.launch" = "Inicio";
 "settings.at_login" = "Al iniciar sesión";
 "settings.dictation" = "Dictado";
-"settings.language" = "Idioma";
-"settings.dictation_language" = "Idioma de dictado";
+"settings.language" = "Modo de dictado";
+"settings.dictation_language" = "Modo de dictado";
 "settings.accuracy" = "Precisión";
 "settings.output" = "Salida";
 "settings.send_text" = "Enviar texto";
@@ -80,7 +80,7 @@
 "menu.shortcut_unavailable" = "Atajo de teclado no disponible";
 "menu.start_recording" = "Iniciar grabación";
 "menu.stop_recording" = "Detener grabación";
-"menu.dictation_language" = "Idioma de dictado";
+"menu.dictation_language" = "Modo de dictado";
 "menu.session_count.one" = "Sesión: %lld";
 "menu.session_count.few" = "Sesiones: %lld";
 "menu.session_count.many" = "Sesiones: %lld";

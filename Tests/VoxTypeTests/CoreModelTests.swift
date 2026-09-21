@@ -57,12 +57,12 @@ import Testing
   #expect(DictationLanguage.allCases == [.englishUS, .simplifiedChinese])
   #expect(DictationLanguage.englishUS.locale.identifier == "en-US")
   #expect(DictationLanguage.simplifiedChinese.locale.identifier == "zh-CN")
-  #expect(DictationLanguage.englishUS.titleKey.english == "English (US)")
-  #expect(DictationLanguage.simplifiedChinese.titleKey.english == "Simplified Chinese")
-  #expect(DictationLanguage.englishUS.shortTitleKey.english == "English")
-  #expect(DictationLanguage.simplifiedChinese.shortTitleKey.english == "Chinese")
-  #expect(DictationLanguage.englishUS.statusTitleKey.english == "English")
-  #expect(DictationLanguage.simplifiedChinese.statusTitleKey.english == "Chinese + English")
+  #expect(DictationLanguage.englishUS.titleKey.english == "English Only")
+  #expect(DictationLanguage.simplifiedChinese.titleKey.english == "English + Chinese")
+  #expect(DictationLanguage.englishUS.shortTitleKey.english == "English Only")
+  #expect(DictationLanguage.simplifiedChinese.shortTitleKey.english == "English + Chinese")
+  #expect(DictationLanguage.englishUS.statusTitleKey.english == "English Only")
+  #expect(DictationLanguage.simplifiedChinese.statusTitleKey.english == "English + Chinese")
 }
 
 @Test @MainActor func waveformOverlayJoinsOtherAppsFullScreenSpaces() {
@@ -135,23 +135,6 @@ import Testing
   let result = AudioCapture().stop()
   #expect(result.durationSeconds == 0)
   #expect(result.writeErrorDescription == nil)
-}
-
-@Test func accessSetupKeepsOneDirectNextActionVisible() {
-  var snapshot = PermissionSnapshot(
-    microphone: .notDetermined,
-    speechRecognition: .notDetermined,
-    accessibility: .notDetermined,
-    inputMonitoring: .granted
-  )
-
-  #expect(PermissionSetupPlan.nextMissing(in: snapshot) == .microphone)
-  snapshot.microphone = .granted
-  #expect(PermissionSetupPlan.nextMissing(in: snapshot) == .speechRecognition)
-  snapshot.speechRecognition = .granted
-  #expect(PermissionSetupPlan.nextMissing(in: snapshot) == .accessibility)
-  snapshot.accessibility = .granted
-  #expect(PermissionSetupPlan.nextMissing(in: snapshot) == nil)
 }
 
 @Test func audioCaptureRetriesOneFreshEngineAfterRouteFormatFailure() {

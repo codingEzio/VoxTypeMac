@@ -6,11 +6,11 @@
 "shortcut.control_slash" = "⌃ 斜線";
 "shortcut.right_option" = "右側 Option";
 "shortcut.right_command" = "右側 Command";
-"dictation.english_us" = "英文（美國）";
-"dictation.simplified_chinese" = "簡體中文";
-"dictation.english_short" = "英文";
-"dictation.chinese_short" = "中文";
-"dictation.chinese_english" = "中文＋英文混合";
+"dictation.english_us" = "僅英文";
+"dictation.simplified_chinese" = "英文＋中文";
+"dictation.english_short" = "僅英文";
+"dictation.chinese_short" = "英文＋中文";
+"dictation.chinese_english" = "英文＋中文";
 "motion.quiet" = "靜謐";
 "motion.liquid" = "流動";
 "motion.bright" = "明快";
@@ -31,8 +31,8 @@
 "settings.launch" = "啟動";
 "settings.at_login" = "登入時";
 "settings.dictation" = "聽寫";
-"settings.language" = "語言";
-"settings.dictation_language" = "聽寫語言";
+"settings.language" = "聽寫模式";
+"settings.dictation_language" = "聽寫模式";
 "settings.accuracy" = "辨識準確度";
 "settings.output" = "輸出";
 "settings.send_text" = "傳送文字方式";
@@ -80,7 +80,7 @@
 "menu.shortcut_unavailable" = "快捷鍵無法使用";
 "menu.start_recording" = "開始錄音";
 "menu.stop_recording" = "停止錄音";
-"menu.dictation_language" = "聽寫語言";
+"menu.dictation_language" = "聽寫模式";
 "menu.session_count.one" = "工作階段：%lld";
 "menu.session_count.few" = "工作階段：%lld";
 "menu.session_count.many" = "工作階段：%lld";
