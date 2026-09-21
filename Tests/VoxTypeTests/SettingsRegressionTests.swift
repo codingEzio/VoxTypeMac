@@ -77,19 +77,35 @@ import Testing
   let store = SettingsStore(configURL: url)
   #expect(store.dictationLanguage == .englishUS)
   store.motionStyle = .bright
-  store.dictationLanguage = .simplifiedChinese
+  store.dictationLanguage = .traditionalChinese
 
   let loaded = SettingsFile(url: url)
   #expect(loaded["schema_version"] == "2")
-  #expect(loaded["speech_mode"] == "zh-CN")
+  #expect(loaded["speech_mode"] == "zh-TW")
   #expect(loaded["recognition_model"] == nil)
   #expect(loaded["accurate_chinese"] == nil)
   #expect(loaded["motion_style"] == "bright")
 
   let reopened = SettingsStore(configURL: url)
-  #expect(reopened.dictationLanguage == .simplifiedChinese)
-  #expect(reopened.localeIdentifier == "zh-CN")
+  #expect(reopened.dictationLanguage == .traditionalChinese)
+  #expect(reopened.localeIdentifier == "zh-TW")
   #expect(reopened.motionStyle == .bright)
+}
+
+@Test @MainActor func settingsMigrateLegacyChineseModeToTaiwanTraditionalChinese() throws {
+  let folder = SettingsFile.temporaryURL.appendingPathComponent("tests", isDirectory: true)
+    .appendingPathComponent("VoxTypeLegacyChinese-\(UUID().uuidString)", isDirectory: true)
+  defer { try? FileManager.default.removeItem(at: folder) }
+  try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+  let url = folder.appendingPathComponent("config.toml")
+  var file = SettingsFile(url: url)
+  file.set("zh-CN", for: "speech_mode")
+  try file.write(to: url)
+
+  let store = SettingsStore(configURL: url)
+  #expect(store.dictationLanguage == .traditionalChinese)
+  #expect(store.localeIdentifier == "zh-TW")
+  #expect(SettingsFile(url: url)["speech_mode"] == "zh-TW")
 }
 
 @Test func localHelperEnvironmentCannotLeakCachesOutsideRuntime() throws {

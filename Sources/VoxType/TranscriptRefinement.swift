@@ -1,3 +1,4 @@
+import CoreFoundation
 import Foundation
 
 enum TranscriptRefinement {
@@ -13,8 +14,12 @@ enum TranscriptRefinement {
         language: DictationLanguage = .englishUS,
         backend: RefinementBackend = .qwen3
     ) -> Selection {
-        let apple = apple.trimmingCharacters(in: .whitespacesAndNewlines)
-        let refined = refined?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        var apple = apple.trimmingCharacters(in: .whitespacesAndNewlines)
+        var refined = refined?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if language == .traditionalChinese {
+            apple = traditionalChinese(apple)
+            refined = traditionalChinese(refined)
+        }
         guard !refined.isEmpty,
             !shouldKeepApple(
                 apple,
@@ -66,15 +71,56 @@ enum TranscriptRefinement {
     private static func restoreLatinTokens(from apple: String, in refined: String) -> String {
         var output = refined
         for token in latinTokens(in: apple) {
-            if output.range(of: token, options: [.caseInsensitive, .literal]) != nil { continue }
+            if let existing = output.range(of: token, options: [.caseInsensitive, .literal]) {
+                output.replaceSubrange(existing, with: token)
+                continue
+            }
             guard let tokenRange = apple.range(of: token, options: [.caseInsensitive, .literal]),
                 let prefix = anchor(before: tokenRange.lowerBound, in: apple),
-                let suffix = anchor(after: tokenRange.upperBound, in: apple),
-                let hole = output.range(of: prefix + suffix)
+                let suffix = anchor(after: tokenRange.upperBound, in: apple)
             else { continue }
-            output.replaceSubrange(hole, with: prefix + token + suffix)
+            if let hole = output.range(of: prefix + suffix) {
+                output.replaceSubrange(hole, with: prefix + token + suffix)
+                continue
+            }
+            replaceLatinSpan(between: prefix, and: suffix, in: &output, with: token)
         }
         return output
+    }
+
+    private static func replaceLatinSpan(
+        between prefix: String,
+        and suffix: String,
+        in output: inout String,
+        with token: String
+    ) {
+        guard let prefixRange = output.range(of: prefix),
+            let suffixRange = output.range(
+                of: suffix,
+                range: prefixRange.upperBound..<output.endIndex
+            )
+        else { return }
+        let candidateRange = prefixRange.upperBound..<suffixRange.lowerBound
+        let candidate = output[candidateRange]
+        guard candidate.count <= 32,
+            candidate.unicodeScalars.contains(where: { $0.isASCII && Character($0).isLetter }),
+            !candidate.contains(where: isCJK)
+        else { return }
+
+        let leading = candidate.prefix { $0.isWhitespace }
+        let trailing = candidate.reversed().prefix {
+            $0.isWhitespace || $0.isPunctuation
+        }.reversed()
+        output.replaceSubrange(candidateRange, with: leading + token + trailing)
+    }
+
+    private static func traditionalChinese(_ text: String) -> String {
+        guard !text.isEmpty else { return text }
+        let mutable = NSMutableString(string: text)
+        guard CFStringTransform(mutable, nil, "Simplified-Traditional" as CFString, false) else {
+            return text
+        }
+        return String(mutable)
     }
 
     private static func latinTokens(in text: String) -> [String] {
@@ -112,7 +158,8 @@ enum TranscriptRefinement {
     }
 
     private static func anchor(after index: String.Index, in text: String) -> String? {
-        let suffix = text[index...].trimmingCharacters(in: .whitespacesAndNewlines)
+        let separators = CharacterSet.whitespacesAndNewlines.union(.punctuationCharacters)
+        let suffix = text[index...].trimmingCharacters(in: separators)
         guard let first = suffix.first else { return nil }
         if isCJK(first) { return String(suffix.prefix(2)) }
         return latinTokens(in: String(suffix.prefix(24))).first ?? String(suffix.prefix(3))

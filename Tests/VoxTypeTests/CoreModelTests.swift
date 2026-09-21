@@ -54,15 +54,15 @@ import Testing
 }
 
 @Test func dictationLanguagesKeepBothSupportedVoiceInputsVisible() {
-  #expect(DictationLanguage.allCases == [.englishUS, .simplifiedChinese])
+  #expect(DictationLanguage.allCases == [.englishUS, .traditionalChinese])
   #expect(DictationLanguage.englishUS.locale.identifier == "en-US")
-  #expect(DictationLanguage.simplifiedChinese.locale.identifier == "zh-CN")
+  #expect(DictationLanguage.traditionalChinese.locale.identifier == "zh-TW")
   #expect(DictationLanguage.englishUS.titleKey.english == "English Only")
-  #expect(DictationLanguage.simplifiedChinese.titleKey.english == "English + Chinese")
+  #expect(DictationLanguage.traditionalChinese.titleKey.english == "English + Chinese")
   #expect(DictationLanguage.englishUS.shortTitleKey.english == "English Only")
-  #expect(DictationLanguage.simplifiedChinese.shortTitleKey.english == "English + Chinese")
+  #expect(DictationLanguage.traditionalChinese.shortTitleKey.english == "English + Chinese")
   #expect(DictationLanguage.englishUS.statusTitleKey.english == "English Only")
-  #expect(DictationLanguage.simplifiedChinese.statusTitleKey.english == "English + Chinese")
+  #expect(DictationLanguage.traditionalChinese.statusTitleKey.english == "English + Chinese")
 }
 
 @Test @MainActor func waveformOverlayJoinsOtherAppsFullScreenSpaces() {

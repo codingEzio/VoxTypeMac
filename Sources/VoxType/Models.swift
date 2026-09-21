@@ -106,7 +106,7 @@ public enum UILanguage: String, CaseIterable, Identifiable, Sendable {
 
 public enum DictationLanguage: String, CaseIterable, Identifiable, Sendable {
   case englishUS = "en-US"
-  case simplifiedChinese = "zh-CN"
+  case traditionalChinese = "zh-TW"
 
   public var id: String { rawValue }
 
@@ -117,21 +117,21 @@ public enum DictationLanguage: String, CaseIterable, Identifiable, Sendable {
   var titleKey: LocalizationKey {
     switch self {
     case .englishUS: .dictationEnglishUS
-    case .simplifiedChinese: .dictationSimplifiedChinese
+    case .traditionalChinese: .dictationSimplifiedChinese
     }
   }
 
   var shortTitleKey: LocalizationKey {
     switch self {
     case .englishUS: .dictationEnglishShort
-    case .simplifiedChinese: .dictationChineseShort
+    case .traditionalChinese: .dictationChineseShort
     }
   }
 
   var statusTitleKey: LocalizationKey {
     switch self {
     case .englishUS: .dictationEnglishShort
-    case .simplifiedChinese: .dictationChineseEnglish
+    case .traditionalChinese: .dictationChineseEnglish
     }
   }
 }

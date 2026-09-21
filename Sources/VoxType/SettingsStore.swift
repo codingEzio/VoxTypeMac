@@ -58,8 +58,10 @@ final class SettingsStore: ObservableObject {
         self.configURL = configURL
         let file = SettingsFile(url: configURL)
         self.uiLanguage = UILanguage(rawValue: file["ui_language"] ?? "") ?? .english
-        self.dictationLanguage = DictationLanguage(rawValue: file["speech_mode"] ?? "")
-            ?? .englishUS
+        let storedSpeechMode = file["speech_mode"]
+        self.dictationLanguage = storedSpeechMode == "zh-CN"
+            ? .traditionalChinese
+            : DictationLanguage(rawValue: storedSpeechMode ?? "") ?? .englishUS
         let storedMode = file["delivery_mode"]
         self.deliveryMode = DeliveryMode(rawValue: storedMode ?? "") ?? .insertOnly
         if let stored = file["preserve_clipboard"] {

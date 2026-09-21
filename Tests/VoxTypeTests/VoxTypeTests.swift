@@ -484,10 +484,20 @@ private actor RecognitionLatencyProbe {
   let selected = senseVoiceSelection(
     apple: "你好",
     refined: "你好 codex",
-    language: .simplifiedChinese
+    language: .traditionalChinese
   )
   #expect(selected.text == "你好 codex")
   #expect(selected.status == "sensevoice-refined")
+}
+
+@Test func chineseModeNormalizesSenseVoiceAndKeepsAppleTechnicalTerms() {
+  let selected = senseVoiceSelection(
+    apple: "我想用 Codex 修改 README，然後執行 Swift test。",
+    refined: "我想用 call deck 修改 rem，然后执行 swift test。",
+    language: .traditionalChinese
+  )
+  #expect(selected.text == "我想用 Codex 修改 README，然後執行 Swift test。")
+  #expect(selected.status == "sensevoice-merged")
 }
 
 @Test func refinementIsBounded() {
@@ -500,9 +510,9 @@ private actor RecognitionLatencyProbe {
   let truncated = senseVoiceSelection(
     apple: apple,
     refined: "这是",
-    language: .simplifiedChinese
+    language: .traditionalChinese
   )
-  #expect(truncated.text == apple)
+  #expect(truncated.text == "這是一段比較完整的中文口述內容，不應該被截斷。")
   #expect(truncated.status == "apple-fallback")
 }
 
@@ -512,7 +522,7 @@ private actor RecognitionLatencyProbe {
   let merged = senseVoiceSelection(
     apple: apple,
     refined: refined,
-    language: .simplifiedChinese
+    language: .traditionalChinese
   )
   #expect(merged.text.contains("120"))
   #expect(merged.text.contains("fps"))
@@ -527,7 +537,7 @@ private actor RecognitionLatencyProbe {
   let chinese = senseVoiceSelection(
     apple: "你好世界",
     refined: "hello world",
-    language: .simplifiedChinese
+    language: .traditionalChinese
   )
   #expect(chinese.text == "你好世界")
   #expect(chinese.status == "apple-fallback")
@@ -535,7 +545,7 @@ private actor RecognitionLatencyProbe {
     apple: "okay thanks",
     refined: "好的谢谢大家今天也是非常开心",
     durationSeconds: 1.8,
-    language: .simplifiedChinese
+    language: .traditionalChinese
   )
   #expect(shortDuration.text == "okay thanks")
 }
@@ -600,9 +610,9 @@ private actor RecognitionLatencyProbe {
     apple: apple,
     refined: refined,
     durationSeconds: 8,
-    language: .simplifiedChinese
+    language: .traditionalChinese
   )
-  #expect(kept.text == refined)
+  #expect(kept.text == "我現在中間這個波浪看起來並沒有120fps，而且我說話這個內容看起來還不準確")
   #expect(kept.status == "sensevoice-refined")
 }
 
@@ -617,10 +627,10 @@ private actor RecognitionLatencyProbe {
   let alreadyPresent = senseVoiceSelection(
     apple: "保持 API 稳定",
     refined: "保持 api 稳定",
-    language: .simplifiedChinese
+    language: .traditionalChinese
   )
-  #expect(alreadyPresent.text == "保持 api 稳定")
-  #expect(alreadyPresent.status == "sensevoice-refined")
+  #expect(alreadyPresent.text == "保持 API 穩定")
+  #expect(alreadyPresent.status == "sensevoice-merged")
 }
 
 @Test func refinementSelectionTrimsInputsAndHandlesEmptyApple() {
