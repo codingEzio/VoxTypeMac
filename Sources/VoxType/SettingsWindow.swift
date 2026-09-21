@@ -25,7 +25,9 @@ extension AppModel {
 
   func keepSettingsVisible() {
     guard let window = settingsWindow else { return }
-    window.orderFront(nil)
+    window.hidesOnDeactivate = false
+    window.level = .floating
+    window.orderFrontRegardless()
   }
 
   fileprivate func makeSettingsWindow() -> NSWindow {
@@ -36,6 +38,8 @@ extension AppModel {
     window.setContentSize(
       NSSize(width: SettingsLayout.windowWidth, height: SettingsLayout.defaultHeight))
     window.isReleasedWhenClosed = false
+    window.hidesOnDeactivate = false
+    window.level = .floating
     window.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary]
     window.delegate = settingsAnchor
     window.center()

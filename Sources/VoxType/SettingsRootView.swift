@@ -211,15 +211,13 @@ struct SettingsRootView: View {
 
       Spacer()
 
-      Menu(settings.text(.settingsReviewAccess)) {
-        ForEach(missingPermissions, id: \.self) { section in
-          Button(permissionTitle(section)) {
-            Task { await model.grantPermission(section) }
-          }
-          .help(permissionHelp(section))
+      if let section = PermissionSetupPlan.nextMissing(in: permissions.snapshot) {
+        Button(permissionActionTitle(section)) {
+          Task { await model.grantPermission(section) }
         }
+        .help(permissionHelp(section))
+        .fixedSize()
       }
-      .fixedSize()
     }
     .padding(.horizontal, SettingsLayout.contentInset)
     .frame(height: 42)
@@ -321,6 +319,15 @@ struct SettingsRootView: View {
       settings.text(.permissionHelpInputMonitoring, ProductIdentity.displayName)
     case .accessibility:
       settings.text(.permissionHelpAccessibility, ProductIdentity.displayName)
+    }
+  }
+
+  private func permissionActionTitle(_ section: PrivacySection) -> String {
+    switch section {
+    case .microphone: settings.text(.permissionEnableMicrophone)
+    case .speechRecognition: settings.text(.permissionEnableSpeechRecognition)
+    case .inputMonitoring: settings.text(.permissionEnableInputMonitoring)
+    case .accessibility: settings.text(.permissionEnableAccessibility)
     }
   }
 }

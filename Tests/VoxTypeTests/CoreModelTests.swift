@@ -136,3 +136,20 @@ import Testing
   #expect(result.durationSeconds == 0)
   #expect(result.writeErrorDescription == nil)
 }
+
+@Test func accessSetupKeepsOneDirectNextActionVisible() {
+  var snapshot = PermissionSnapshot(
+    microphone: .notDetermined,
+    speechRecognition: .notDetermined,
+    accessibility: .notDetermined,
+    inputMonitoring: .granted
+  )
+
+  #expect(PermissionSetupPlan.nextMissing(in: snapshot) == .microphone)
+  snapshot.microphone = .granted
+  #expect(PermissionSetupPlan.nextMissing(in: snapshot) == .speechRecognition)
+  snapshot.speechRecognition = .granted
+  #expect(PermissionSetupPlan.nextMissing(in: snapshot) == .accessibility)
+  snapshot.accessibility = .granted
+  #expect(PermissionSetupPlan.nextMissing(in: snapshot) == nil)
+}

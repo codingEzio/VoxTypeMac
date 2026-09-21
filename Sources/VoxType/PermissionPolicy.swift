@@ -16,6 +16,12 @@ enum PrivacySection: String, CaseIterable, Sendable {
     }
 }
 
+enum PermissionSetupPlan {
+    static func nextMissing(in snapshot: PermissionSnapshot) -> PrivacySection? {
+        PrivacySection.allCases.first { snapshot.state(for: $0) != .granted }
+    }
+}
+
 enum PrivacySettingsLink {
     static let pane = "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension"
 
