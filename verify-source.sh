@@ -63,8 +63,8 @@ expected_identity = {
     "APP_BUNDLE_NAME": "VoxTypeMac",
     "EXECUTABLE_NAME": "VoxType",
     "BUNDLE_ID": "app.voxtypemac.VoxTypeMac",
-    "VERSION": "0.9.3",
-    "BUILD_NUMBER": "19",
+    "VERSION": "0.9.4",
+    "BUILD_NUMBER": "20",
     "MIN_SYSTEM_VERSION": "27.0",
     "SIGNING_IDENTITY": "-",
 }
