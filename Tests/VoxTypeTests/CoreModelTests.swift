@@ -153,3 +153,14 @@ import Testing
   snapshot.accessibility = .granted
   #expect(PermissionSetupPlan.nextMissing(in: snapshot) == nil)
 }
+
+@Test func audioCaptureRetriesOneFreshEngineAfterRouteFormatFailure() {
+  let routeChangeError = NSError(
+    domain: "com.apple.coreaudio.avfaudio",
+    code: -10_868
+  )
+
+  #expect(AudioCapture.shouldRetryStart(after: routeChangeError, attempt: 0))
+  #expect(!AudioCapture.shouldRetryStart(after: routeChangeError, attempt: 1))
+  #expect(!AudioCapture.shouldRetryStart(after: CocoaError(.fileWriteNoPermission), attempt: 0))
+}

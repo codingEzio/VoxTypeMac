@@ -34,8 +34,26 @@ final class AudioCapture: @unchecked Sendable {
             _ = stop()
         }
 
-        let engine = usableEngine()
-        let format = engine.inputNode.outputFormat(forBus: 0)
+        var attempt = 0
+        while true {
+            do {
+                return try startFreshEngine(writingTo: url, onBuffer: onBuffer)
+            } catch {
+                guard Self.shouldRetryStart(after: error, attempt: attempt) else {
+                    throw error
+                }
+                attempt += 1
+            }
+        }
+    }
+
+    private func startFreshEngine(
+        writingTo url: URL,
+        onBuffer: @escaping BufferHandler
+    ) throws -> AVAudioFormat {
+        let engine = AVAudioEngine()
+        let inputNode = engine.inputNode
+        let format = inputNode.outputFormat(forBus: 0)
         guard format.channelCount > 0, format.sampleRate > 0 else {
             throw CaptureError.invalidInputFormat
         }
@@ -49,46 +67,58 @@ final class AudioCapture: @unchecked Sendable {
         self.writeErrorDescription = nil
         meter.reset()
 
-        try engine.inputNode.installAudioTap(
-            onBus: 0,
-            bufferSize: Self.inputBufferFrameCount,
-            format: format
-        ) { [weak self] buffer, time in
-            guard let self else { return }
-            let copied = AVAudioPCMBuffer(copying: buffer)
-            self.meter.ingest(copied)
-
-            self.recognitionQueue.async { [weak self] in
+        var tapInstalled = false
+        do {
+            try inputNode.installAudioTap(
+                onBus: 0,
+                bufferSize: Self.inputBufferFrameCount,
+                format: nil
+            ) { [weak self] buffer, time in
                 guard let self else { return }
-                // Recognition never waits for archive I/O. The recording queue preserves file order.
-                self.bufferHandler?(copied, time)
-                self.recordedFrames += AVAudioFramePosition(copied.frameLength)
-                self.recordingQueue.async { [weak self] in
+                let copied = AVAudioPCMBuffer(copying: buffer)
+                self.meter.ingest(copied)
+
+                self.recognitionQueue.async { [weak self] in
                     guard let self else { return }
-                    do {
-                        try self.audioFile?.write(from: copied)
-                    } catch {
-                        if self.writeErrorDescription == nil {
-                            self.writeErrorDescription = error.localizedDescription
+                    // Recognition never waits for archive I/O. The recording queue preserves file order.
+                    self.bufferHandler?(copied, time)
+                    self.recordedFrames += AVAudioFramePosition(copied.frameLength)
+                    self.recordingQueue.async { [weak self] in
+                        guard let self else { return }
+                        do {
+                            try self.audioFile?.write(from: copied)
+                        } catch {
+                            if self.writeErrorDescription == nil {
+                                self.writeErrorDescription = error.localizedDescription
+                            }
                         }
                     }
                 }
             }
+            tapInstalled = true
+            engine.prepare()
+            try engine.start()
+        } catch {
+            if tapInstalled {
+                inputNode.removeTap(onBus: 0)
+            }
+            engine.stop()
+            self.engine = nil
+            self.audioFile = nil
+            self.bufferHandler = nil
+            self.recordedFrames = 0
+            self.sampleRate = 0
+            self.writeErrorDescription = nil
+            meter.reset()
+            throw error
         }
 
-        engine.prepare()
-        try engine.start()
         isRecording = true
         return format
     }
 
-    private func usableEngine() -> AVAudioEngine {
-        if let engine, engine.inputNode.outputFormat(forBus: 0).channelCount > 0 {
-            return engine
-        }
-        let replacement = AVAudioEngine()
-        self.engine = replacement
-        return replacement
+    static func shouldRetryStart(after error: Error, attempt: Int) -> Bool {
+        attempt == 0 && (error as NSError).code == -10_868
     }
 
     struct StopResult: Sendable {
