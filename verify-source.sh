@@ -63,8 +63,8 @@ expected_identity = {
     "APP_BUNDLE_NAME": "VoxTypeMac",
     "EXECUTABLE_NAME": "VoxType",
     "BUNDLE_ID": "app.voxtypemac.VoxTypeMac",
-    "VERSION": "0.9.5",
-    "BUILD_NUMBER": "21",
+    "VERSION": "0.9.6",
+    "BUILD_NUMBER": "22",
     "MIN_SYSTEM_VERSION": "27.0",
     "SIGNING_IDENTITY": "Alex Local Code Signing",
 }
