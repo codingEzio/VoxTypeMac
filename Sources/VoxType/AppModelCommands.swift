@@ -91,7 +91,6 @@ extension AppModel {
       showSettings()
     }
     await permissions.grantOrOpen(section)
-    keepSettingsVisible()
     permissions.refresh()
     let currentPermissions = permissions.snapshot
     switch section {

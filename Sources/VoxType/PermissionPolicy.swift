@@ -16,9 +16,31 @@ enum PrivacySection: String, CaseIterable, Sendable {
     }
 }
 
+enum PermissionBadgeState: Equatable, Sendable {
+    case granted
+    case needsAction
+}
+
+struct PermissionBadge: Equatable, Sendable {
+    let section: PrivacySection
+    let state: PermissionBadgeState
+}
+
 enum PermissionSetupPlan {
-    static func nextMissing(in snapshot: PermissionSnapshot) -> PrivacySection? {
-        PrivacySection.allCases.first { snapshot.state(for: $0) != .granted }
+    static let displayOrder: [PrivacySection] = [
+        .microphone,
+        .speechRecognition,
+        .accessibility,
+        .inputMonitoring,
+    ]
+
+    static func badges(in snapshot: PermissionSnapshot) -> [PermissionBadge] {
+        displayOrder.map { section in
+            PermissionBadge(
+                section: section,
+                state: snapshot.state(for: section) == .granted ? .granted : .needsAction
+            )
+        }
     }
 }
 

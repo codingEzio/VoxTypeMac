@@ -27,7 +27,7 @@ VoxTypeMac은 받아쓰기에 마이크 및 음성 인식 권한을, 전역 단�
 open "runtime/build/VoxTypeMac.app"
 ```
 
-빌드 결과물은 무시 대상인 `runtime/` 디렉터리에 저장됩니다. 개발 빌드는 애드혹 서명되므로 다시 빌드한 뒤 macOS에서 권한을 다시 요청할 수 있습니다. 안정적인 배포용 코드 서명 ID와 공증은 이 로컬 소스 버전의 범위에 포함되지 않습니다.
+빌드 결과물은 무시 대상인 `runtime/` 디렉터리에 저장됩니다. 로컬 빌드는 고정된 `Alex Local Code Signing` ID로 서명하므로 다시 빌드해도 macOS 개인정보 보호 권한이 유지됩니다. 첫 빌드 전에 `./ensure-signing-identity.sh`를 실행하십시오. 앱은 공증되지 않았으며, 기여자는 `SIGNING_IDENTITY`를 자신의 고정 코드 서명 인증서로 변경할 수 있습니다.
 
 빌드한 앱을 로컬에 설치하려면 다음 명령을 실행합니다.
 

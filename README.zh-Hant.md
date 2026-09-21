@@ -27,7 +27,7 @@ VoxTypeMac 會為聽寫要求「麥克風」與「語音辨識」權限，為全
 open "runtime/build/VoxTypeMac.app"
 ~~~
 
-建置輸出會留在已忽略的 runtime/ 目錄。開發版本採 ad hoc 簽署，因此重新建置後 macOS 可能會再次要求授權。穩定的發行簽署身分與公證不在這個本機原始碼候選版本的範圍內。
+建置輸出會留在已忽略的 runtime/ 目錄。本機版本使用固定的 `Alex Local Code Signing` 身分，讓 macOS 隱私權授權可在重新建置後保留。第一次建置前請執行 `./ensure-signing-identity.sh`。App 尚未公證；貢獻者可將 `SIGNING_IDENTITY` 改為自己的固定程式碼簽署憑證。
 
 若要在本機安裝建置好的 App：
 

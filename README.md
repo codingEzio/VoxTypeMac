@@ -39,10 +39,11 @@ clipboard.
 open "runtime/build/VoxTypeMac.app"
 ```
 
-Build output stays under the ignored `runtime/` directory. Development builds
-are ad-hoc signed, so macOS may require permissions again after a rebuild. A
-stable distribution identity and notarization are outside this local source
-candidate.
+Build output stays under the ignored `runtime/` directory. Local builds use the
+stable `Alex Local Code Signing` identity so macOS privacy grants survive
+rebuilds. Run `./ensure-signing-identity.sh` before the first build. The app is
+not notarized; contributors may change `SIGNING_IDENTITY` to their own stable
+code-signing certificate.
 
 To install the built app locally:
 

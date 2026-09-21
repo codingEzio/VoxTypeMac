@@ -14,6 +14,20 @@ staging="$(mktemp -d "$ROOT/runtime/temp/delete_after_use_install.XXXXXX")"
 candidate="$staging/$APP_BUNDLE_NAME.app"
 previous="$staging/Previous-$APP_BUNDLE_NAME.app"
 installed=0
+allow_signing_migration=0
+
+if [[ "${1:-}" == "--allow-signing-migration" ]]; then
+  allow_signing_migration=1
+  shift
+fi
+[[ $# -eq 0 ]] || {
+  echo "usage: ./install.sh [--allow-signing-migration]" >&2
+  exit 2
+}
+
+designated_requirement() {
+  /usr/bin/codesign -d -r- "$1" 2>&1 | /usr/bin/sed -n 's/^designated => //p'
+}
 
 cleanup() {
   status=$?
@@ -30,6 +44,20 @@ trap cleanup EXIT HUP INT TERM
 mkdir -p "$install_root"
 /usr/bin/ditto "$built_app" "$candidate"
 /usr/bin/codesign --verify --deep --strict "$candidate"
+
+candidate_requirement="$(designated_requirement "$candidate")"
+[[ -n "$candidate_requirement" ]] || {
+  echo "Could not read the candidate signing requirement." >&2
+  exit 1
+}
+if [[ -d "$installed_app" ]]; then
+  installed_requirement="$(designated_requirement "$installed_app")"
+  if [[ "$candidate_requirement" != "$installed_requirement" && $allow_signing_migration -ne 1 ]]; then
+    echo "Signing requirement changed; refusing to reset macOS privacy grants." >&2
+    echo "Use --allow-signing-migration only for an intentional one-time identity migration." >&2
+    exit 1
+  fi
+fi
 
 if pgrep -f "^$installed_app/Contents/MacOS/$EXECUTABLE_NAME([[:space:]]|$)" >/dev/null; then
   pkill -TERM -f "^$installed_app/Contents/MacOS/$EXECUTABLE_NAME([[:space:]]|$)"

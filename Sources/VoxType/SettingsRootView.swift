@@ -31,9 +31,7 @@ struct SettingsRootView: View {
       .padding(.top, 22)
       .padding(.bottom, 18)
 
-      if !missingPermissions.isEmpty {
-        accessCallout
-      }
+      accessCallout
 
       Divider()
       footer
@@ -41,7 +39,6 @@ struct SettingsRootView: View {
     .frame(width: SettingsLayout.windowWidth, height: SettingsLayout.defaultHeight)
     .onAppear {
       model.refreshPermissions()
-      model.watchPermissionApproval()
     }
     .onChange(of: settings.uiLanguage) {
       model.refreshLocalizedPresentation()
@@ -202,26 +199,46 @@ struct SettingsRootView: View {
   }
 
   private var accessCallout: some View {
-    HStack(spacing: 10) {
-      Label(
-        settings.accessAttention(count: missingPermissions.count),
-        systemImage: "exclamationmark.triangle.fill"
-      )
-      .foregroundStyle(.orange)
+    let badges = PermissionSetupPlan.badges(in: permissions.snapshot)
+    let allGranted = badges.allSatisfy { $0.state == .granted }
 
-      Spacer()
-
-      if let section = PermissionSetupPlan.nextMissing(in: permissions.snapshot) {
-        Button(permissionActionTitle(section)) {
-          Task { await model.grantPermission(section) }
-        }
-        .help(permissionHelp(section))
-        .fixedSize()
+    return HStack(spacing: 6) {
+      ForEach(badges, id: \.section) { badge in
+        permissionBadge(badge)
       }
     }
     .padding(.horizontal, SettingsLayout.contentInset)
     .frame(height: 42)
-    .background(.orange.opacity(0.08))
+    .background((allGranted ? Color.green : Color.orange).opacity(0.08))
+  }
+
+  @ViewBuilder
+  private func permissionBadge(_ badge: PermissionBadge) -> some View {
+    let title = permissionTitle(badge.section)
+    if badge.state == .granted {
+      Label(title, systemImage: "checkmark.circle.fill")
+        .font(.caption)
+        .lineLimit(1)
+        .minimumScaleFactor(0.72)
+        .foregroundStyle(.green)
+        .frame(maxWidth: .infinity, minHeight: 24)
+        .background(.green.opacity(0.1), in: RoundedRectangle(cornerRadius: 7))
+        .accessibilityValue(settings.text(.modelReady))
+    } else {
+      Button {
+        Task { await model.grantPermission(badge.section) }
+      } label: {
+        Label(title, systemImage: "circle.dashed")
+          .font(.caption)
+          .lineLimit(1)
+          .minimumScaleFactor(0.72)
+          .frame(maxWidth: .infinity)
+      }
+      .buttonStyle(.bordered)
+      .controlSize(.small)
+      .frame(maxWidth: .infinity)
+      .help(permissionHelp(badge.section))
+    }
   }
 
   private var footer: some View {
@@ -287,10 +304,6 @@ struct SettingsRootView: View {
     )
   }
 
-  private var missingPermissions: [PrivacySection] {
-    PrivacySection.allCases.filter { permissions.snapshot.state(for: $0) != .granted }
-  }
-
   private var refinementStateTitle: String {
     switch refinement.state {
     case .unavailable: settings.text(.modelNotDownloaded)
@@ -322,12 +335,4 @@ struct SettingsRootView: View {
     }
   }
 
-  private func permissionActionTitle(_ section: PrivacySection) -> String {
-    switch section {
-    case .microphone: settings.text(.permissionEnableMicrophone)
-    case .speechRecognition: settings.text(.permissionEnableSpeechRecognition)
-    case .inputMonitoring: settings.text(.permissionEnableInputMonitoring)
-    case .accessibility: settings.text(.permissionEnableAccessibility)
-    }
-  }
 }

@@ -55,6 +55,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     false
   }
 
+  func applicationDidBecomeActive(_ notification: Notification) {
+    AppModel.shared.refreshPermissions()
+  }
+
   func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
     guard AppModel.shared.phase == .recording else { return .terminateNow }
 

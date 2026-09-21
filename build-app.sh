@@ -69,6 +69,13 @@ chmod 755 "$CONTENTS/MacOS/$BINARY_NAME"
 
 /usr/bin/plutil -lint "$CONTENTS/Info.plist" >/dev/null
 
+if [[ "$SIGNING_IDENTITY" == "-" ]]; then
+  echo "Ad-hoc signing is not allowed for an installed $DISPLAY_NAME build." >&2
+  echo "A stable signing identity is required so macOS keeps its privacy grants." >&2
+  exit 1
+fi
+"$ROOT/ensure-signing-identity.sh"
+
 printf 'Signing %s with: %s\n' "$DISPLAY_NAME" "$SIGNING_IDENTITY"
 /usr/bin/codesign \
   --force \
@@ -79,17 +86,15 @@ printf 'Signing %s with: %s\n' "$DISPLAY_NAME" "$SIGNING_IDENTITY"
 /usr/bin/codesign --verify --deep --strict "$APP"
 
 signed_identifier="$(/usr/bin/codesign -d --verbose=4 "$APP" 2>&1 | /usr/bin/awk -F= '/^Identifier=/ && !found {print $2; found=1}')"
+signed_authority="$(/usr/bin/codesign -d --verbose=4 "$APP" 2>&1 | /usr/bin/awk -F= '/^Authority=/ && !found {print $2; found=1}')"
 [[ "$signed_identifier" == "$BUNDLE_ID" ]] || {
   echo "Signed bundle identifier differs: $signed_identifier" >&2
   exit 1
 }
-if [[ "$SIGNING_IDENTITY" != "-" ]]; then
-  signed_authority="$(/usr/bin/codesign -d --verbose=4 "$APP" 2>&1 | /usr/bin/awk -F= '/^Authority=/ && !found {print $2; found=1}')"
-  [[ "$signed_authority" == "$SIGNING_IDENTITY" ]] || {
-    echo "Signed authority differs: $signed_authority" >&2
-    exit 1
-  }
-fi
+[[ "$signed_authority" == "$SIGNING_IDENTITY" ]] || {
+  echo "Signed authority differs: $signed_authority" >&2
+  exit 1
+}
 
 printf '\nBuilt successfully:\n  %s\n\n' "$APP"
 printf 'Run it with:\n  open "%s"\n' "$APP"

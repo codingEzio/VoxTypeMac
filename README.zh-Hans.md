@@ -27,7 +27,7 @@ VoxTypeMac 会请求麦克风和语音识别权限，以便听写；会请求输
 open "runtime/build/VoxTypeMac.app"
 ```
 
-构建输出保存在已忽略的 `runtime/` 目录中。开发构建使用临时签名，因此每次重新构建后，macOS 可能会再次要求授权。本地源码候选版本尚未设置稳定的发行签名身份或公证。
+构建输出保存在已忽略的 `runtime/` 目录中。本地构建使用固定的 `Alex Local Code Signing` 身份，让 macOS 隐私权限在重新构建后仍能保留。首次构建前请运行 `./ensure-signing-identity.sh`。应用尚未公证；贡献者可以把 `SIGNING_IDENTITY` 改为自己的固定代码签名证书。
 
 如需在本机安装构建好的应用：
 

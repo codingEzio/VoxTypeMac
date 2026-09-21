@@ -43,10 +43,11 @@ open "runtime/build/VoxTypeMac.app"
 ~~~
 
 Los resultados de compilación se guardan en el directorio runtime/, que está
-excluido del control de versiones. Las compilaciones de desarrollo usan firma
-ad hoc, por lo que macOS puede volver a solicitar permisos después de una
-recompilación. La identidad de firma estable para la distribución y la
-notarización no forman parte de esta versión local del código fuente.
+excluido del control de versiones. Las compilaciones locales usan la identidad
+estable `Alex Local Code Signing` para conservar los permisos de privacidad de
+macOS después de recompilar. Ejecute `./ensure-signing-identity.sh` antes de la
+primera compilación. La aplicación no está notarizada; cada colaborador puede
+cambiar `SIGNING_IDENTITY` por su propio certificado estable.
 
 Para instalar la aplicación compilada en este Mac:
 

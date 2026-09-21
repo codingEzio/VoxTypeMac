@@ -23,13 +23,6 @@ extension AppModel {
     permissions.refresh()
   }
 
-  func keepSettingsVisible() {
-    guard let window = settingsWindow else { return }
-    window.hidesOnDeactivate = false
-    window.level = .floating
-    window.orderFrontRegardless()
-  }
-
   fileprivate func makeSettingsWindow() -> NSWindow {
     let host = NSHostingController(rootView: SettingsRootView(model: self))
     let window = NSWindow(contentViewController: host)
@@ -39,7 +32,7 @@ extension AppModel {
       NSSize(width: SettingsLayout.windowWidth, height: SettingsLayout.defaultHeight))
     window.isReleasedWhenClosed = false
     window.hidesOnDeactivate = false
-    window.level = .floating
+    window.level = .normal
     window.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary]
     window.delegate = settingsAnchor
     window.center()

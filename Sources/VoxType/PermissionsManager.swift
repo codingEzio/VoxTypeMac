@@ -118,7 +118,15 @@ final class PermissionsManager: ObservableObject {
 
     func openPrivacySettings(_ section: PrivacySection) {
         guard let url = URL(string: PrivacySettingsLink.url(section)) else { return }
-        NSWorkspace.shared.open(url)
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.activates = true
+        NSWorkspace.shared.open(url, configuration: configuration) { _, _ in
+            DispatchQueue.main.async {
+                NSRunningApplication.runningApplications(
+                    withBundleIdentifier: "com.apple.systempreferences"
+                ).first?.activate(options: [.activateAllWindows])
+            }
+        }
     }
 
     private func prompt(_ section: PrivacySection) {

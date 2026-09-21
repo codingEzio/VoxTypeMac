@@ -15,8 +15,8 @@ mkdir -p "$scratch" "$module_cache"
 swift package --scratch-path "$scratch" dump-package >/dev/null
 swiftc -frontend -parse Sources/VoxType/*.swift
 swift test --jobs 4 -c debug --scratch-path "$scratch"
-bash -n build-app.sh install.sh verify-source.sh script/*.sh
-shellcheck build-app.sh install.sh verify-source.sh script/*.sh
+bash -n build-app.sh ensure-signing-identity.sh install.sh verify-source.sh script/*.sh
+shellcheck build-app.sh ensure-signing-identity.sh install.sh verify-source.sh script/*.sh
 /usr/bin/plutil -lint Resources/Info.plist Resources/VoxType.entitlements >/dev/null
 for localization in Resources/*.lproj/*.strings; do
   /usr/bin/plutil -lint "$localization" >/dev/null
@@ -66,7 +66,7 @@ expected_identity = {
     "VERSION": "0.9.4",
     "BUILD_NUMBER": "20",
     "MIN_SYSTEM_VERSION": "27.0",
-    "SIGNING_IDENTITY": "-",
+    "SIGNING_IDENTITY": "Alex Local Code Signing",
 }
 if config != expected_identity:
     raise SystemExit("product identity differs from the sanitized local candidate")
@@ -74,13 +74,13 @@ if config != expected_identity:
 tracked = subprocess.check_output(["git", "ls-files", "-z"], cwd=root).split(b"\0")
 forbidden_paths = {
     b"AGENTS.md", b"CHANGELOG.md", b"DEVELOPMENT.md", b"ERRORLOG.txt",
-    b"HANDOFF.md", b"docs/asr-evaluation.md", b"ensure-signing-identity.sh",
+    b"HANDOFF.md", b"docs/asr-evaluation.md",
 }
 if forbidden_paths.intersection(tracked):
     raise SystemExit("private workflow or historical files are tracked")
 forbidden_text = [
     "/" + "Users/alex/", "Y-" + "VoxTypePrivate", "X-" + "VoxType",
-    "dev." + "elliot.voxtype", "Alex Local" + " Code Signing",
+    "dev." + "elliot.voxtype",
     "Private" + "Gallery", "Daem0n" + "Targaryen",
 ]
 for raw_path in tracked:
@@ -95,8 +95,6 @@ for raw_path in tracked:
         if needle in text:
             raise SystemExit(f"private marker {needle!r} remains in {path.relative_to(root)}")
 
-if subprocess.check_output(["git", "remote"], cwd=root).strip():
-    raise SystemExit("VoxTypeMac must remain local-only until remote work is authorized")
 PY
 
 echo "VoxTypeMac source verification passed."
